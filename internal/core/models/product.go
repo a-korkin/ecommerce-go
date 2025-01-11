@@ -3,10 +3,10 @@ package models
 import "github.com/gofrs/uuid"
 
 type Product struct {
-	ID       uuid.UUID `json:"id"`
-	Title    string    `json:"title"`
-	Category Category  `json:"category"`
-	Price    float32   `json:"price"`
+	ID       uuid.UUID `json:"id" db:"id"`
+	Title    string    `json:"title" db:"title"`
+	Category Category  `json:"category" db:"category"`
+	Price    float32   `json:"price" db:"price"`
 }
 
 type ProductIn struct {

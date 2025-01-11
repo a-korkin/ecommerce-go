@@ -3,16 +3,20 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/a-korkin/ecommerce/internal/web/handlers"
 	"log"
 	"net/http"
 	"os/signal"
 	"syscall"
 
+	"github.com/a-korkin/ecommerce/configs"
+	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
+	"github.com/a-korkin/ecommerce/internal/web/handlers"
+
 	"github.com/gorilla/mux"
 )
 
 func main() {
+
 	r := mux.NewRouter()
 	server := http.Server{
 		Addr:    ":8080",
@@ -25,9 +29,22 @@ func main() {
 		context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	conn, err := db.NewDBConnection(
+		configs.GetEnv("DB_DRIVER"), configs.GetEnv("DB_CONNECTION"))
+	if err != nil {
+		log.Fatalf("failed to connect to db: %v", err)
+	}
+	defer func() {
+		log.Println("db connection closed")
+		if err = conn.CloseDBConnection(); err != nil {
+			log.Fatalf("failed to close db connection: %v", err)
+		}
+	}()
+
 	go func() {
 		log.Println("server running")
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("failed to start server: %v", err)
 		}
 	}()
