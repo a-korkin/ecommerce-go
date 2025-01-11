@@ -1,9 +1,14 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
+	"context"
+	"errors"
 	"log"
 	"net/http"
+	"os/signal"
+	"syscall"
+
+	"github.com/gorilla/mux"
 )
 
 func ProductHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +23,22 @@ func main() {
 	}
 	r.HandleFunc("/products", ProductHandler)
 
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatalf("failed to start server: %v", err)
+	ctx, stop := signal.NotifyContext(
+		context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	go func() {
+		log.Println("server running")
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("failed to start server: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+	log.Println("server terminated")
+
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("failed to shutdown server: %v", err)
 	}
+	log.Println("shutting down")
 }
