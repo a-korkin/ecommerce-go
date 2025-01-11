@@ -6,9 +6,12 @@ import (
 	"os"
 )
 
-func GetEnv(key string) string {
+func init() {
 	if err := godotenv.Load(); err != nil {
 		log.Println(err)
 	}
+}
+
+func GetEnv(key string) string {
 	return os.Getenv(key)
 }

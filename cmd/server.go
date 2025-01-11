@@ -10,27 +10,15 @@ import (
 
 	"github.com/a-korkin/ecommerce/configs"
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
+	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/a-korkin/ecommerce/internal/web/handlers"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
-
-	r := mux.NewRouter()
-	server := http.Server{
-		Addr:    ":8080",
-		Handler: r,
-	}
-	r.HandleFunc("/products", handlers.ProductsHandler)
-	r.HandleFunc("/products/{id}", handlers.ProductHandler)
-
-	ctx, stop := signal.NotifyContext(
-		context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
 	conn, err := db.NewDBConnection(
-		configs.GetEnv("DB_DRIVER"), configs.GetEnv("DB_CONNECTION"))
+		configs.GetEnv("GOOSE_DRIVER"), configs.GetEnv("GOOSE_DBSTRING"))
 	if err != nil {
 		log.Fatalf("failed to connect to db: %v", err)
 	}
@@ -40,6 +28,23 @@ func main() {
 			log.Fatalf("failed to close db connection: %v", err)
 		}
 	}()
+
+	r := mux.NewRouter()
+	server := http.Server{
+		Addr:    ":8080",
+		Handler: r,
+	}
+	// r.HandleFunc("/products", handlers.ProductsHandler)
+	// r.HandleFunc("/products/{id}", handlers.ProductHandler)
+
+	productHandler := handlers.ProductHandler{
+		ProdService: *services.NewProductService(conn.DB),
+	}
+	r.Handle("/products", &productHandler)
+
+	ctx, stop := signal.NotifyContext(
+		context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
 	go func() {
 		log.Println("server running")

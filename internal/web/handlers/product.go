@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/a-korkin/ecommerce/internal/core/models"
+	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/gofrs/uuid"
 )
 
@@ -69,38 +71,57 @@ var products []*models.Product = []*models.Product{
 	},
 }
 
-func ProductsHandler(w http.ResponseWriter, r *http.Request) {
+type ProductHandler struct {
+	ProdService services.ProductService
+}
+
+func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
-		create(w, r)
+		p.create(w, r)
 	case "GET":
 		getAll(w, r)
 	}
 }
 
-func ProductHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		getByID(w, r)
-	case "DELETE":
-		delete(w, r)
-	}
-}
+// func ProductsHandler(w http.ResponseWriter, r *http.Request) {
+// 	switch r.Method {
+// 	case "POST":
+// 		create(w, r)
+// 	case "GET":
+// 		getAll(w, r)
+// 	}
+// }
 
-func create(w http.ResponseWriter, r *http.Request) {
+// func ProductHandler(w http.ResponseWriter, r *http.Request) {
+// 	switch r.Method {
+// 	case "GET":
+// 		getByID(w, r)
+// 	case "DELETE":
+// 		delete(w, r)
+// 	}
+// }
+
+func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 	in := models.ProductIn{}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		log.Printf("failed to unmarshalling product: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	product := models.Product{
-		ID:       newUUID(),
-		Title:    in.Title,
-		Category: categories[0],
-		Price:    in.Price,
+	product, err := h.ProdService.Create(&in)
+	if err != nil {
+		log.Printf("failed to create product: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	products = append(products, &product)
+	// product := models.Product{
+	// 	ID:       newUUID(),
+	// 	Title:    in.Title,
+	// 	Category: categories[0],
+	// 	Price:    in.Price,
+	// }
+	// products = append(products, &product)
 	if err := json.NewEncoder(w).Encode(&product); err != nil {
 		log.Printf("failed to marshalling product: %v", err)
 		w.WriteHeader(http.StatusBadRequest)

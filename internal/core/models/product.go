@@ -10,7 +10,7 @@ type Product struct {
 }
 
 type ProductIn struct {
-	Title      string    `json:"title"`
-	CategoryID uuid.UUID `json:"category_id"`
-	Price      float32   `json:"price"`
+	Title    string    `json:"title" db:"title"`
+	Category uuid.UUID `json:"category" db:"category"`
+	Price    float32   `json:"price" db:"price"`
 }
