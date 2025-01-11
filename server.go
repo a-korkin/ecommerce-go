@@ -1,18 +1,23 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
+func ProductHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("hello from product handler\n"))
+}
+
 func main() {
-	log.Println("hello from server")
+	r := mux.NewRouter()
 	server := http.Server{
-		Addr: ":8080",
+		Addr:    ":8080",
+		Handler: r,
 	}
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hello from handler\n"))
-	})
+	r.HandleFunc("/products", ProductHandler)
+
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("failed to start server: %v", err)
 	}
