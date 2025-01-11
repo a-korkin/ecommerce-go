@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/a-korkin/ecommerce/internal/web/handlers"
 	"log"
 	"net/http"
 	"os/signal"
@@ -11,17 +12,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func ProductHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello from product handler\n"))
-}
-
 func main() {
 	r := mux.NewRouter()
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: r,
 	}
-	r.HandleFunc("/products", ProductHandler)
+	r.HandleFunc("/products", handlers.ProductsHandler)
+	r.HandleFunc("/products/{id}", handlers.ProductHandler)
 
 	ctx, stop := signal.NotifyContext(
 		context.Background(), syscall.SIGINT, syscall.SIGTERM)
