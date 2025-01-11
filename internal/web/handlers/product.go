@@ -9,6 +9,7 @@ import (
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
 	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/utils"
 	"github.com/gofrs/uuid"
 )
 
@@ -80,7 +81,7 @@ func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		p.create(w, r)
 	case "GET":
-		getAll(w, r)
+		p.getAll(w, r)
 	}
 }
 
@@ -115,13 +116,6 @@ func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// product := models.Product{
-	// 	ID:       newUUID(),
-	// 	Title:    in.Title,
-	// 	Category: categories[0],
-	// 	Price:    in.Price,
-	// }
-	// products = append(products, &product)
 	if err := json.NewEncoder(w).Encode(&product); err != nil {
 		log.Printf("failed to marshalling product: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -130,8 +124,17 @@ func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func getAll(w http.ResponseWriter, _ *http.Request) {
-	if err := json.NewEncoder(w).Encode(&products); err != nil {
+func (h *ProductHandler) getAll(w http.ResponseWriter, r *http.Request) {
+	params := utils.GetQueryParams(r.URL.RawQuery)
+	category := params["category"]
+
+	prods, err := h.ProdService.GetAll(category)
+	if err != nil {
+		log.Printf("failed to get products: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if err := json.NewEncoder(w).Encode(&prods); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

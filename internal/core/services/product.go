@@ -36,3 +36,29 @@ returning id, title, price;`
 	}
 	return &out, nil
 }
+
+func (s *ProductService) GetAll(category string) ([]*models.Product, error) {
+	sql := `
+select 
+	p.id, p.title, p.price, 
+	c.id as category_id, c.title as category_title, c.code as category_code
+from public.products as p
+inner join public.categories as c on c.id = p.category
+where coalesce($1, '') = '' or p.category = $1::uuid`
+	products := []*models.Product{}
+	// err := s.DB.Select(&products, sql, category)
+	rows, err := s.DB.Queryx(sql, category)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		product := models.Product{}
+		err = rows.Scan(&product.ID, &product.Title, &product.Price,
+			&product.Category.ID, &product.Category.Title, &product.Category.Code)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, &product)
+	}
+	return products, nil
+}
