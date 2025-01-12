@@ -10,13 +10,16 @@ import (
 )
 
 type Router struct {
-	Products *ProductHandler
+	Products   *ProductHandler
+	Categories *CategoryHandler
 }
 
 func NewRouter(db *sqlx.DB) *Router {
-	productService := services.NewProductService(db)
+	products := services.NewProductService(db)
+	categories := services.NewCategoryService(db)
 	return &Router{
-		Products: NewProductHandler(productService),
+		Products:   NewProductHandler(products),
+		Categories: NewCategoryHanlder(categories),
 	}
 }
 
@@ -24,6 +27,8 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch utils.GetResouce(r.RequestURI) {
 	case "/products":
 		router.Products.ServeHTTP(w, r)
+	case "/categories":
+		router.Categories.ServeHTTP(w, r)
 	default:
 		fmt.Fprintf(w, "hello from main router\n")
 	}

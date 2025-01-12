@@ -7,3 +7,8 @@ type Category struct {
 	Title string    `json:"title" db:"title"`
 	Code  string    `json:"code" db:"code"`
 }
+
+type CategoryIn struct {
+	Title string `json:"title"`
+	Code  string `json:"code"`
+}

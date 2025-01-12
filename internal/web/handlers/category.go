@@ -1,0 +1,63 @@
+package handlers
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/a-korkin/ecommerce/internal/core/models"
+	"github.com/a-korkin/ecommerce/internal/core/services"
+)
+
+type CategoryHandler struct {
+	CategoryService *services.CategoryService
+}
+
+func NewCategoryHanlder(service *services.CategoryService) *CategoryHandler {
+	return &CategoryHandler{CategoryService: service}
+}
+
+func (h *CategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		h.create(w, r)
+	case "GET":
+		h.getAll(w, r)
+	}
+}
+
+func (h *CategoryHandler) create(w http.ResponseWriter, r *http.Request) {
+	in := models.CategoryIn{}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		msg := fmt.Sprintf("failed to unmarshalling category: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	out, err := h.CategoryService.Create(&in)
+	if err != nil {
+		msg := fmt.Sprintf("failed to create category: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	if err = json.NewEncoder(w).Encode(&out); err != nil {
+		msg := fmt.Sprintf("failed to marshalling category: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *CategoryHandler) getAll(w http.ResponseWriter, _ *http.Request) {
+	categories, err := h.CategoryService.GetAll()
+	if err != nil {
+		msg := fmt.Sprintf("failed to get categories: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	if err = json.NewEncoder(w).Encode(categories); err != nil {
+		msg := fmt.Sprintf("failed to marshalling categories: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
