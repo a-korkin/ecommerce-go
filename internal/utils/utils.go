@@ -35,12 +35,12 @@ func zip(pathPattern []string, tokens []string) map[string]string {
 	tokensLen := len(tokens)
 	result := make(map[string]string, 0)
 	for i := 0; i < len(pathPattern); i++ {
-		value := ""
 		if tokensLen > i {
-			value = tokens[i]
+			value := tokens[i]
+			key := strings.Replace(
+				strings.Replace(pathPattern[i], "{", "", 1), "}", "", 1)
+			result[key] = value
 		}
-		key := pathPattern[i]
-		result[key] = value
 	}
 	return result
 }
