@@ -10,7 +10,6 @@ import (
 
 	"github.com/a-korkin/ecommerce/configs"
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
-	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/a-korkin/ecommerce/internal/web/handlers"
 )
 
@@ -31,7 +30,7 @@ func main() {
 		Addr: ":8080",
 	}
 
-	router := handlers.NewRouter(services.NewProductService(conn.DB))
+	router := handlers.NewRouter(conn.DB)
 	http.Handle("/", router)
 
 	ctx, stop := signal.NotifyContext(

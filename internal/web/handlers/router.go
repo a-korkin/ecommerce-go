@@ -6,15 +6,17 @@ import (
 
 	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/a-korkin/ecommerce/internal/utils"
+	"github.com/jmoiron/sqlx"
 )
 
 type Router struct {
 	Products *ProductHandler
 }
 
-func NewRouter(prodService *services.ProductService) *Router {
+func NewRouter(db *sqlx.DB) *Router {
+	productService := services.NewProductService(db)
 	return &Router{
-		Products: NewProductHandler(prodService),
+		Products: NewProductHandler(productService),
 	}
 }
 

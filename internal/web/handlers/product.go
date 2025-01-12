@@ -30,9 +30,9 @@ func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		id, ok := vars["id"]
 		if !ok {
 			p.getAll(w, r)
-		} else {
-			p.getByID(w, r, id)
+			return
 		}
+		p.getByID(w, r, id)
 	case "DELETE":
 		path := "/{id}"
 		vars := utils.GetVars(r.URL.RequestURI(), path)
@@ -40,9 +40,8 @@ func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			w.WriteHeader(http.StatusBadRequest)
 			return
-		} else {
-			p.delete(w, r, id)
 		}
+		p.delete(w, r, id)
 	}
 }
 
