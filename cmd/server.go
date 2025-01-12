@@ -12,8 +12,6 @@ import (
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
 	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/a-korkin/ecommerce/internal/web/handlers"
-
-	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -29,18 +27,12 @@ func main() {
 		}
 	}()
 
-	r := mux.NewRouter()
 	server := http.Server{
-		Addr:    ":8080",
-		Handler: r,
+		Addr: ":8080",
 	}
-	// r.HandleFunc("/products", handlers.ProductsHandler)
-	// r.HandleFunc("/products/{id}", handlers.ProductHandler)
 
-	productHandler := handlers.ProductHandler{
-		ProdService: *services.NewProductService(conn.DB),
-	}
-	r.Handle("/products", &productHandler)
+	router := handlers.NewRouter(services.NewProductService(conn.DB))
+	http.Handle("/", router)
 
 	ctx, stop := signal.NotifyContext(
 		context.Background(), syscall.SIGINT, syscall.SIGTERM)

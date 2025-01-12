@@ -16,3 +16,11 @@ func GetQueryParams(url string) map[string]string {
 
 	return params
 }
+
+func GetResouce(url string) string {
+	path := strings.Split(url, "/")
+	if len(path) == 1 {
+		return ""
+	}
+	return path[1]
+}

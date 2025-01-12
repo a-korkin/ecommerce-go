@@ -46,7 +46,6 @@ from public.products as p
 inner join public.categories as c on c.id = p.category
 where coalesce($1, '') = '' or p.category = $1::uuid`
 	products := []*models.Product{}
-	// err := s.DB.Select(&products, sql, category)
 	rows, err := s.DB.Queryx(sql, category)
 	if err != nil {
 		return nil, err

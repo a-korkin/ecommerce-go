@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
-
 	"github.com/a-korkin/ecommerce/internal/core/models"
 	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/a-korkin/ecommerce/internal/utils"
@@ -73,7 +71,13 @@ var products []*models.Product = []*models.Product{
 }
 
 type ProductHandler struct {
-	ProdService services.ProductService
+	ProductService *services.ProductService
+}
+
+func NewProductHandler(service *services.ProductService) *ProductHandler {
+	return &ProductHandler{
+		ProductService: service,
+	}
 }
 
 func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -85,24 +89,6 @@ func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// func ProductsHandler(w http.ResponseWriter, r *http.Request) {
-// 	switch r.Method {
-// 	case "POST":
-// 		create(w, r)
-// 	case "GET":
-// 		getAll(w, r)
-// 	}
-// }
-
-// func ProductHandler(w http.ResponseWriter, r *http.Request) {
-// 	switch r.Method {
-// 	case "GET":
-// 		getByID(w, r)
-// 	case "DELETE":
-// 		delete(w, r)
-// 	}
-// }
-
 func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 	in := models.ProductIn{}
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
@@ -110,7 +96,7 @@ func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	product, err := h.ProdService.Create(&in)
+	product, err := h.ProductService.Create(&in)
 	if err != nil {
 		log.Printf("failed to create product: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -128,7 +114,7 @@ func (h *ProductHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	params := utils.GetQueryParams(r.URL.RawQuery)
 	category := params["category"]
 
-	prods, err := h.ProdService.GetAll(category)
+	prods, err := h.ProductService.GetAll(category)
 	if err != nil {
 		log.Printf("failed to get products: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -140,53 +126,53 @@ func (h *ProductHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getByID(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, ok := vars["id"]
-	if !ok {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	pID, err := uuid.FromString(id)
-	if err != nil {
-		log.Printf("failed to parse uuid: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	for _, p := range products {
-		if pID == p.ID {
-			if err := json.NewEncoder(w).Encode(p); err != nil {
-				log.Printf("failed to marshalling product: %v", err)
-				return
-			}
-		}
-	}
-	w.WriteHeader(http.StatusNotFound)
-}
+// func getByID(w http.ResponseWriter, r *http.Request) {
+// 	vars := mux.Vars(r)
+// 	id, ok := vars["id"]
+// 	if !ok {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
+// 	pID, err := uuid.FromString(id)
+// 	if err != nil {
+// 		log.Printf("failed to parse uuid: %v", err)
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
+// 	for _, p := range products {
+// 		if pID == p.ID {
+// 			if err := json.NewEncoder(w).Encode(p); err != nil {
+// 				log.Printf("failed to marshalling product: %v", err)
+// 				return
+// 			}
+// 		}
+// 	}
+// 	w.WriteHeader(http.StatusNotFound)
+// }
 
-func delete(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, ok := vars["id"]
-	if !ok {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	pID, err := uuid.FromString(id)
-	if err != nil {
-		log.Printf("failed to parse uuid: %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	size := max(len(products)-1, 0)
-	prods := make([]*models.Product, size)
-	for _, p := range products {
-		if pID != p.ID {
-			prods = append(prods, p)
-		}
-	}
-	if err := json.NewEncoder(w).Encode(&prods); err != nil {
-		log.Printf("failed to marshalling products: %v", err)
-		return
-	}
-	w.WriteHeader(http.StatusNoContent)
-}
+// func delete(w http.ResponseWriter, r *http.Request) {
+// 	vars := mux.Vars(r)
+// 	id, ok := vars["id"]
+// 	if !ok {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
+// 	pID, err := uuid.FromString(id)
+// 	if err != nil {
+// 		log.Printf("failed to parse uuid: %v", err)
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		return
+// 	}
+// 	size := max(len(products)-1, 0)
+// 	prods := make([]*models.Product, size)
+// 	for _, p := range products {
+// 		if pID != p.ID {
+// 			prods = append(prods, p)
+// 		}
+// 	}
+// 	if err := json.NewEncoder(w).Encode(&prods); err != nil {
+// 		log.Printf("failed to marshalling products: %v", err)
+// 		return
+// 	}
+// 	w.WriteHeader(http.StatusNoContent)
+// }
