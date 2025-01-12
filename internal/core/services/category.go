@@ -35,3 +35,24 @@ from public.categories`
 	}
 	return categories, nil
 }
+
+func (s *CategoryService) GetByID(id string) (*models.Category, error) {
+	sql := `
+select id, title, code
+from public.categories
+where id = $1::uuid`
+	out := models.Category{}
+	if err := s.DB.Get(&out, sql, id); err != nil {
+		return nil, err
+	}
+	return &out, nil
+
+}
+
+func (s *CategoryService) Delete(id string) error {
+	sql := `
+delete from public.categories
+where id = $1::uuid`
+	_, err := s.DB.Exec(sql, id)
+	return err
+}

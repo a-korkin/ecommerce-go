@@ -7,6 +7,7 @@ import (
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
 	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/utils"
 )
 
 type CategoryHandler struct {
@@ -22,7 +23,21 @@ func (h *CategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		h.create(w, r)
 	case "GET":
+		path := "/{id}"
+		vars := utils.GetVars(r.RequestURI, path)
+		id, ok := vars["id"]
+		if ok {
+			h.getByID(w, r, id)
+			return
+		}
 		h.getAll(w, r)
+	case "DELETE":
+		path := "/{id}"
+		vars := utils.GetVars(r.RequestURI, path)
+		id, ok := vars["id"]
+		if ok {
+			h.delete(w, r, id)
+		}
 	}
 }
 
@@ -60,4 +75,30 @@ func (h *CategoryHandler) getAll(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *CategoryHandler) getByID(
+	w http.ResponseWriter, _ *http.Request, id string) {
+	category, err := h.CategoryService.GetByID(id)
+	if err != nil {
+		msg := fmt.Sprintf("failed to get category: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	if err = json.NewEncoder(w).Encode(&category); err != nil {
+		msg := fmt.Sprintf("failed to marshalling category: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *CategoryHandler) delete(
+	w http.ResponseWriter, _ *http.Request, id string) {
+	if err := h.CategoryService.Delete(id); err != nil {
+		msg := fmt.Sprintf("failed to delete category: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
