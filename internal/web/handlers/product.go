@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -24,9 +25,16 @@ func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		p.create(w, r)
+	case "PUT":
+		path := "/{id}"
+		vars := utils.GetVars(r.RequestURI, path)
+		id, ok := vars["id"]
+		if ok {
+			p.update(w, r, id)
+		}
 	case "GET":
 		path := "/{id}"
-		vars := utils.GetVars(r.URL.RequestURI(), path)
+		vars := utils.GetVars(r.RequestURI, path)
 		id, ok := vars["id"]
 		if !ok {
 			p.getAll(w, r)
@@ -35,7 +43,7 @@ func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p.getByID(w, r, id)
 	case "DELETE":
 		path := "/{id}"
-		vars := utils.GetVars(r.URL.RequestURI(), path)
+		vars := utils.GetVars(r.RequestURI, path)
 		id, ok := vars["id"]
 		if !ok {
 			w.WriteHeader(http.StatusBadRequest)
@@ -64,6 +72,27 @@ func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *ProductHandler) update(
+	w http.ResponseWriter, r *http.Request, id string) {
+	in := models.ProductIn{}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+		msg := fmt.Sprintf("failed to unmarshalling product: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	out, err := h.ProductService.Update(id, &in)
+	if err != nil {
+		msg := fmt.Sprintf("failed to update product: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	if err = json.NewEncoder(w).Encode(out); err != nil {
+		msg := fmt.Sprintf("failed to marshalling product: %s", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *ProductHandler) getAll(w http.ResponseWriter, r *http.Request) {

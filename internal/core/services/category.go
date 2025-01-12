@@ -25,6 +25,21 @@ returning id, title, code`
 	return &category, nil
 }
 
+func (s *CategoryService) Update(
+	id string, in *models.CategoryIn) (*models.Category, error) {
+	sql := `
+update public.categories
+set title = $2,
+	code = $3
+where id = $1::uuid
+returning id, title, code`
+	out := models.Category{}
+	if err := s.DB.Get(&out, sql, id, in.Title, in.Code); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (s *CategoryService) GetAll() ([]*models.Category, error) {
 	sql := `
 select id, title, code

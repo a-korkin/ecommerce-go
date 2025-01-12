@@ -37,6 +37,35 @@ returning id, title, price`
 	return &out, nil
 }
 
+func (s *ProductService) Update(
+	id string, in *models.ProductIn) (*models.Product, error) {
+	sql := `
+update public.products
+set title = $2,
+	category = $3,
+	price = $4
+where id = $1::uuid
+returning id, title, category, price`
+	out := models.Product{}
+	row, err := s.DB.Query(sql, id, in.Title, in.Category, in.Price)
+	if row.Next() {
+		var catID string
+		if err = row.Scan(&out.ID, &out.Title, &catID, &out.Price); err != nil {
+			return nil, err
+		}
+		sql = `
+select id, title, code
+from public.categories
+where id = $1::uuid`
+		cat := models.Category{}
+		if err = s.DB.Get(&cat, sql, catID); err != nil {
+			return nil, err
+		}
+		out.Category = cat
+	}
+	return &out, nil
+}
+
 func (s *ProductService) GetAll(category string) ([]*models.Product, error) {
 	sql := `
 select 
