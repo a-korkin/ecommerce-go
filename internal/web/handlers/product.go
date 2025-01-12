@@ -81,6 +81,9 @@ func NewProductHandler(service *services.ProductService) *ProductHandler {
 }
 
 func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := "/{id}/{category}"
+	log.Printf("vars: %v", utils.GetVars(r.URL.RequestURI(), path))
+
 	switch r.Method {
 	case "POST":
 		p.create(w, r)

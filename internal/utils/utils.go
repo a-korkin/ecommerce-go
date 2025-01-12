@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -20,7 +21,32 @@ func GetQueryParams(url string) map[string]string {
 func GetResouce(url string) string {
 	path := strings.Split(url, "/")
 	if len(path) == 1 {
-		return ""
+		return "/"
 	}
-	return path[1]
+	return fmt.Sprintf("/%s", path[1])
+}
+
+func getPathTokens(url string) []string {
+	tokens := strings.Split(url, "/")
+	return tokens[2:]
+}
+
+func zip(pathPattern []string, tokens []string) map[string]string {
+	tokensLen := len(tokens)
+	result := make(map[string]string, 0)
+	for i := 0; i < len(pathPattern); i++ {
+		value := ""
+		if tokensLen > i {
+			value = tokens[i]
+		}
+		key := pathPattern[i]
+		result[key] = value
+	}
+	return result
+}
+
+func GetVars(url string, path string) map[string]string {
+	tokens := getPathTokens(url)
+	patternPath := strings.Split(path, "/")[1:]
+	return zip(patternPath, tokens)
 }

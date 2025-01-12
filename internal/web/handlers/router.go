@@ -20,7 +20,7 @@ func NewRouter(prodService *services.ProductService) *Router {
 
 func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch utils.GetResouce(r.RequestURI) {
-	case "products":
+	case "/products":
 		router.Products.ServeHTTP(w, r)
 	default:
 		fmt.Fprintf(w, "hello from main router\n")
