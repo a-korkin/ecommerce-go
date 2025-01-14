@@ -54,14 +54,6 @@ func TestGetQueryParams(t *testing.T) {
 	}
 }
 
-// func GetResouce(url string) string {
-// 	path := strings.Split(url, "/")
-// 	if len(path) == 1 {
-// 		return "/"
-// 	}
-// 	return fmt.Sprintf("/%s", path[1])
-// }
-
 func TestGetResource(t *testing.T) {
 	tests := []struct {
 		name     string
