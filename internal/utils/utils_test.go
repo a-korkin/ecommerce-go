@@ -4,6 +4,64 @@ import (
 	"testing"
 )
 
+func TestGetQueryParams(t *testing.T) {
+	params := map[string]string{
+		"page":     "1",
+		"limit":    "100",
+		"offset":   "20",
+		"category": "91f43fe2-4d8a-4a21-865a-fe9dc49aa3c7",
+	}
+	tests := []struct {
+		name     string
+		positive bool
+		url      string
+		keys     []string
+	}{
+		{
+			name:     "have page and offset",
+			positive: true,
+			url:      "page=1&offset=20",
+			keys:     []string{"page", "offset"},
+		},
+		{
+			name:     "dont' have page",
+			positive: false,
+			url:      "limit=100&offset=20",
+			keys:     []string{"page"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := GetQueryParams(tt.url)
+			if tt.positive {
+				for _, key := range tt.keys {
+					exp := params[key]
+					got := result[key]
+					if exp != got {
+						t.Errorf("Incorrect result, expected: %s, got: %s", exp, got)
+					}
+				}
+			} else {
+				for _, key := range tt.keys {
+					_, ok := result[key]
+					if ok {
+						t.Errorf("Incorrect result, can't have a : %s in params", key)
+					}
+				}
+			}
+		})
+	}
+}
+
+// func GetResouce(url string) string {
+// 	path := strings.Split(url, "/")
+// 	if len(path) == 1 {
+// 		return "/"
+// 	}
+// 	return fmt.Sprintf("/%s", path[1])
+// }
+
 func TestGetVars(t *testing.T) {
 	vars := map[string]string{
 		"id":       "5ee2371d-3065-4f69-8e3f-d1a31df2ef74",
@@ -28,27 +86,15 @@ func TestGetVars(t *testing.T) {
 			path:   "/{id}/{category}",
 			fields: []string{"id", "category"},
 		},
-		// {
-		// 	name:   "don't have id",
-		// 	url:    "/products",
-		// 	path:   "/{id}",
-		// 	fields: []string{"id"},
-		// },
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := GetVars(tt.url, tt.path)
 			for _, field := range tt.fields {
-				exp, ok := vars[field]
-				if ok {
-					if exp != got[field] {
-						t.Errorf("Incorrect result, expected: %s, got: %s", exp, got)
-					}
-				} else {
-					// if exp == got[field] {
-					// 	t.Errorf("Incorrect result, expected: %s, got: %s", exp, got)
-					// }
+				exp := vars[field]
+				if exp != got[field] {
+					t.Errorf("Incorrect result, expected: %s, got: %s", exp, got)
 				}
 			}
 		})
