@@ -62,6 +62,38 @@ func TestGetQueryParams(t *testing.T) {
 // 	return fmt.Sprintf("/%s", path[1])
 // }
 
+func TestGetResource(t *testing.T) {
+	tests := []struct {
+		name     string
+		url      string
+		expected string
+	}{
+		{
+			name:     "is products",
+			url:      "/products",
+			expected: "/products",
+		},
+		{
+			name:     "is categories",
+			url:      "/categories/91f43fe2-4d8a-4a21-865a-fe9dc49aa3c7",
+			expected: "/categories",
+		},
+		{
+			name:     "is users",
+			url:      "/users?page=2&limit=20",
+			expected: "/users",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := GetResouce(tt.url)
+			if tt.expected != result {
+				t.Errorf("Incorrect result, expected: %s, got: %s", tt.expected, result)
+			}
+		})
+	}
+}
+
 func TestGetVars(t *testing.T) {
 	vars := map[string]string{
 		"id":       "5ee2371d-3065-4f69-8e3f-d1a31df2ef74",

@@ -23,7 +23,7 @@ func GetResouce(url string) string {
 	if len(path) == 1 {
 		return "/"
 	}
-	return fmt.Sprintf("/%s", path[1])
+	return fmt.Sprintf("/%s", strings.Split(path[1], "?")[0])
 }
 
 func getPathTokens(url string) []string {
