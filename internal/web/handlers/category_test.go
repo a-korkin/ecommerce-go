@@ -6,7 +6,6 @@ import (
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
 	"github.com/a-korkin/ecommerce/internal/core/services"
 
-	// "github.com/gofrs/uuid"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -18,68 +17,47 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-// func (h *CategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-// 	switch r.Method {
-// 	case "POST":
-// 		h.create(w, r)
-// 	case "PUT":
-// 		path := "/{id}"
-// 		vars := utils.GetVars(r.RequestURI, path)
-// 		id, ok := vars["id"]
-// 		if !ok {
-// 			msg := fmt.Sprintf("failed to get id")
-// 			http.Error(w, msg, http.StatusBadRequest)
-// 			return
-// 		}
-// 		h.update(w, r, id)
-// 	case "GET":
-// 		path := "/{id}"
-// 		vars := utils.GetVars(r.RequestURI, path)
-// 		id, ok := vars["id"]
-// 		if ok {
-// 			h.getByID(w, r, id)
-// 			return
-// 		}
-// 		h.getAll(w, r)
-// 	case "DELETE":
-// 		path := "/{id}"
-// 		vars := utils.GetVars(r.RequestURI, path)
-// 		id, ok := vars["id"]
-// 		if ok {
-// 			h.delete(w, r, id)
-// 		}
-// 	}
-// }
-
 type Runner struct {
 	Connection *db.PostgresConnection
 	Handler    *CategoryHandler
 }
 
-var runner Runner
-
-func start() {
-	runner = Runner{}
+func NewRunner() *Runner {
 	conn, err := db.NewDBConnection(
 		"postgres",
 		"host=localhost port=5432 user=postgres password=admin dbname=ecommerce_testdb sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
-	runner.Connection = conn
-	service := services.NewCategoryService(runner.Connection.DB)
-	runner.Handler = NewCategoryHanlder(service)
-	if err = goose.SetDialect("postgres"); err != nil {
+	service := services.NewCategoryService(conn.DB)
+	return &Runner{
+		Connection: conn,
+		Handler:    NewCategoryHanlder(service),
+	}
+}
+
+var runner *Runner
+
+func migrate() {
+	if err := goose.SetDialect("postgres"); err != nil {
 		log.Fatal(err)
 	}
-	dir, _ := os.Getwd()
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
 	migrationDir := filepath.Join(dir, "../../../migrations")
-	if err = goose.Up(runner.Connection.DB.DB, migrationDir); err != nil {
+	if err := goose.Up(runner.Connection.DB.DB, migrationDir); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func shutdown() {
+func start() {
+	runner = NewRunner()
+	migrate()
+}
+
+func shutdown(runner *Runner) {
 	if err := runner.Connection.CloseDBConnection(); err != nil {
 		log.Fatal(err)
 	}
@@ -89,7 +67,7 @@ func TestMain(m *testing.M) {
 	log.Printf("start main testing...")
 	start()
 	exitCode := m.Run()
-	shutdown()
+	shutdown(runner)
 	log.Printf("stop main testing...")
 	os.Exit(exitCode)
 }
