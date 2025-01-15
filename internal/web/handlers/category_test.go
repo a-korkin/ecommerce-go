@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"bytes"
+
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
 	"github.com/a-korkin/ecommerce/internal/core/services"
 
@@ -11,8 +13,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/pressly/goose/v3"
 	"path/filepath"
+
+	"github.com/pressly/goose/v3"
 )
 
 // func (h *CategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -71,7 +74,6 @@ func start() {
 	}
 	dir, _ := os.Getwd()
 	migrationDir := filepath.Join(dir, "../../../migrations")
-	// log.Printf("dir: %s", ss)
 	if err = goose.Up(runner.Connection.DB.DB, migrationDir); err != nil {
 		log.Fatal(err)
 	}
@@ -93,10 +95,19 @@ func TestMain(m *testing.M) {
 }
 
 func TestServeHTTP(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/categories", nil)
 	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/categories", nil)
 	runner.Handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code, got: %v want: %v", status, http.StatusOK)
+		t.Errorf("handler returned wrong status code, got: %v, want: %v", status, http.StatusOK)
+	}
+
+	rr = httptest.NewRecorder()
+	newCategory := []byte(`{"title":"test category", "code": "test_cat"}`)
+	req = httptest.NewRequest(http.MethodPost, "/categories", bytes.NewBuffer(newCategory))
+	req.Header.Set("Content-Type", "application/json")
+	runner.Handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("handler returned wrong status code, got: %v, want: %v", status, http.StatusCreated)
 	}
 }

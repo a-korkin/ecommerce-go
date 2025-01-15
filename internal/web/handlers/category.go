@@ -64,12 +64,12 @@ func (h *CategoryHandler) create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 	if err = json.NewEncoder(w).Encode(&out); err != nil {
 		msg := fmt.Sprintf("failed to marshalling category: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
 }
 
 func (h *CategoryHandler) update(
