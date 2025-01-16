@@ -137,3 +137,25 @@ func TestCreate(t *testing.T) {
 		t.Errorf("Wrong unmarshalling category, got: %v", out)
 	}
 }
+
+func TestUpdate(t *testing.T) {
+	// ('996be659-81f0-457c-8682-800abcfd64c2', 'category@2', 'cat@2');`
+	id := "996be659-81f0-457c-8682-800abcfd64c2"
+	rr := httptest.NewRecorder()
+	categoryData := []byte(`{"title":"upd title", "code":"upd code"}`)
+	req := httptest.NewRequest(http.MethodPut,
+		fmt.Sprintf("/categories/%s", id), bytes.NewBuffer(categoryData))
+	req.Header.Set("Content-Type", "application/json")
+	runner.Handler.update(rr, req, id)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Handler returned wrong status code, got: %v, want: %v",
+			status, http.StatusOK)
+	}
+	out := models.Category{}
+	if err := json.NewDecoder(rr.Body).Decode(&out); err != nil {
+		t.Errorf("Failed to unmarshalling category: %s", err)
+	}
+	if out.Title != "upd title" || out.Code != "upd code" {
+		t.Errorf("Wrong unmarshalling category, got: %v", out)
+	}
+}
