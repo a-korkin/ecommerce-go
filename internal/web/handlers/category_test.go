@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
+	"github.com/a-korkin/ecommerce/internal/core/models"
 	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/pressly/goose/v3"
 )
@@ -91,5 +93,13 @@ func TestCreate(t *testing.T) {
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("Handler returned wrong status code, got: %v, want: %v",
 			status, http.StatusCreated)
+	}
+
+	out := models.Category{}
+	if err := json.NewDecoder(rr.Body).Decode(&out); err != nil {
+		t.Errorf("Failed to unmarshalling category: %s", err)
+	}
+	if out.Title != "category@1" || out.Code != "cat@1" {
+		t.Errorf("Wrong unmarshalling category, got: %v", out)
 	}
 }
