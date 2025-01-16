@@ -67,12 +67,12 @@ func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(&product); err != nil {
 		log.Printf("failed to marshalling product: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
 }
 
 func (h *ProductHandler) update(

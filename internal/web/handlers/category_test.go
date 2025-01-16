@@ -11,7 +11,7 @@ import (
 	"github.com/a-korkin/ecommerce/internal/core/models"
 )
 
-func TestGetAll(t *testing.T) {
+func TestGetAllCategories(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/categories", nil)
 	router.Categories.getAll(rr, req)
@@ -21,7 +21,7 @@ func TestGetAll(t *testing.T) {
 	}
 }
 
-func TestGetByID(t *testing.T) {
+func TestGetByIDCategory(t *testing.T) {
 	id := "688e64d3-c722-48e5-be96-850e419df2d6"
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest(
@@ -40,7 +40,7 @@ func TestGetByID(t *testing.T) {
 	}
 }
 
-func TestCreate(t *testing.T) {
+func TestCreateCategory(t *testing.T) {
 	rr := httptest.NewRecorder()
 	categoryData := []byte(`{"title":"category@4", "code":"cat@4"}`)
 	req := httptest.NewRequest(http.MethodPost, "/categories",
@@ -61,7 +61,7 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
+func TestUpdateCategory(t *testing.T) {
 	id := "996be659-81f0-457c-8682-800abcfd64c2"
 	rr := httptest.NewRecorder()
 	categoryData := []byte(`{"title":"upd title", "code":"upd code"}`)
@@ -82,7 +82,7 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
+func TestDeleteCategory(t *testing.T) {
 	id := "efa8b389-a3bd-4e06-84dd-4960a0dfc55b"
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodDelete, "/categories", nil)

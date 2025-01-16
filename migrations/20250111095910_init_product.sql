@@ -13,7 +13,7 @@ create table if not exists public.products
 (
     id uuid primary key not null default uuid_generate_v4(),
     title varchar(255) not null,
-    category uuid not null references public.categories(id),
+    category uuid not null references public.categories(id) on delete cascade,
     price numeric(10, 2)
 );
 -- +goose StatementEnd
