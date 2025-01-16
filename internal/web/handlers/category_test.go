@@ -56,8 +56,6 @@ func migrate() {
 
 func prepareData() {
 	sql := `
-delete from public.categories;
-
 insert into public.categories(id, title, code)
 values
 	('688e64d3-c722-48e5-be96-850e419df2d6', 'category@1', 'cat@1'),
@@ -74,6 +72,12 @@ func start() {
 }
 
 func shutdown(runner *Runner) {
+	sql := `delete from public.categories;`
+	_, err := runner.Connection.DB.DB.Exec(sql)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if err := runner.Connection.CloseDBConnection(); err != nil {
 		log.Fatal(err)
 	}
