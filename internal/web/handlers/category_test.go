@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -53,9 +54,23 @@ func migrate() {
 	}
 }
 
+func prepareData() {
+	sql := `
+delete from public.categories;
+
+insert into public.categories(id, title, code)
+values
+	('688e64d3-c722-48e5-be96-850e419df2d6', 'category@1', 'cat@1'),
+	('996be659-81f0-457c-8682-800abcfd64c2', 'category@2', 'cat@2');`
+	if _, err := runner.Connection.DB.Exec(sql); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func start() {
 	runner = NewRunner()
 	migrate()
+	prepareData()
 }
 
 func shutdown(runner *Runner) {
@@ -83,9 +98,28 @@ func TestGetAll(t *testing.T) {
 	}
 }
 
+func TestGetByID(t *testing.T) {
+	id := "688e64d3-c722-48e5-be96-850e419df2d6"
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(
+		http.MethodGet, fmt.Sprintf("/categories/%s", id), nil)
+	runner.Handler.getByID(rr, req, id)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("Handler returned wrong status code, got: %v, want: %v",
+			status, http.StatusOK)
+	}
+	out := models.Category{}
+	if err := json.NewDecoder(rr.Body).Decode(&out); err != nil {
+		t.Errorf("Failed to unmarshalling category: %v", err)
+	}
+	if out.Title != "category@1" || out.Code != "cat@1" {
+		t.Errorf("Wrong unmarshalling category: %v", out)
+	}
+}
+
 func TestCreate(t *testing.T) {
 	rr := httptest.NewRecorder()
-	categoryData := []byte(`{"title":"category@1", "code":"cat@1"}`)
+	categoryData := []byte(`{"title":"category@3", "code":"cat@3"}`)
 	req := httptest.NewRequest(http.MethodPost, "/categories",
 		bytes.NewBuffer(categoryData))
 	req.Header.Set("Content-Type", "application/json")
@@ -99,7 +133,7 @@ func TestCreate(t *testing.T) {
 	if err := json.NewDecoder(rr.Body).Decode(&out); err != nil {
 		t.Errorf("Failed to unmarshalling category: %s", err)
 	}
-	if out.Title != "category@1" || out.Code != "cat@1" {
+	if out.Title != "category@3" || out.Code != "cat@3" {
 		t.Errorf("Wrong unmarshalling category, got: %v", out)
 	}
 }
