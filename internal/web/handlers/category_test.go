@@ -2,18 +2,15 @@ package handlers
 
 import (
 	"bytes"
-
-	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
-	"github.com/a-korkin/ecommerce/internal/core/services"
-
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
 
-	"path/filepath"
-
+	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
+	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/pressly/goose/v3"
 )
 
@@ -25,7 +22,9 @@ type Runner struct {
 func NewRunner() *Runner {
 	conn, err := db.NewDBConnection(
 		"postgres",
-		"host=localhost port=5432 user=postgres password=admin dbname=ecommerce_testdb sslmode=disable")
+		`
+host=localhost port=5432 user=postgres 
+password=admin dbname=ecommerce_testdb sslmode=disable`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,20 +71,25 @@ func TestMain(m *testing.M) {
 	os.Exit(exitCode)
 }
 
-func TestServeHTTP(t *testing.T) {
+func TestGetAll(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/categories", nil)
-	runner.Handler.ServeHTTP(rr, req)
+	runner.Handler.getAll(rr, req)
 	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code, got: %v, want: %v", status, http.StatusOK)
+		t.Errorf("Handler returned wrong status code, got: %v, want: %v",
+			status, http.StatusOK)
 	}
+}
 
-	rr = httptest.NewRecorder()
-	newCategory := []byte(`{"title":"test category", "code": "test_cat"}`)
-	req = httptest.NewRequest(http.MethodPost, "/categories", bytes.NewBuffer(newCategory))
+func TestCreate(t *testing.T) {
+	rr := httptest.NewRecorder()
+	categoryData := []byte(`{"title":"category@1", "code":"cat@1"}`)
+	req := httptest.NewRequest(http.MethodPost, "/categories",
+		bytes.NewBuffer(categoryData))
 	req.Header.Set("Content-Type", "application/json")
-	runner.Handler.ServeHTTP(rr, req)
+	runner.Handler.create(rr, req)
 	if status := rr.Code; status != http.StatusCreated {
-		t.Errorf("handler returned wrong status code, got: %v, want: %v", status, http.StatusCreated)
+		t.Errorf("Handler returned wrong status code, got: %v, want: %v",
+			status, http.StatusCreated)
 	}
 }
