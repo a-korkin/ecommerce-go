@@ -10,6 +10,9 @@ import (
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
 )
 
+var categoryService *CategoryService
+var productService *ProductService
+
 func migrate() {
 	if err := goose.SetDialect("postgres"); err != nil {
 		log.Fatal(err)
@@ -19,7 +22,7 @@ func migrate() {
 		log.Fatal(err)
 	}
 	migrationDir := filepath.Join(dir, "../../../migrations")
-	if err := goose.Up(service.DB.DB, migrationDir); err != nil {
+	if err := goose.Up(categoryService.DB.DB, migrationDir); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -44,7 +47,7 @@ values
 	('66724666-13ed-47f7-b042-eab7694e7499', 'product@8', '996be659-81f0-457c-8682-800abcfd64c2', 37.88),
 	('74958436-3427-4608-94b8-854c5db62e97', 'product@9', 'efa8b389-a3bd-4e06-84dd-4960a0dfc55b', 3.63);
 	`
-	_, err := service.DB.Exec(sql)
+	_, err := categoryService.DB.Exec(sql)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,7 +62,8 @@ dbname=ecommerce_testdb sslmode=disable`)
 	if err != nil {
 		log.Fatal(err)
 	}
-	service = NewCategoryService(conn.DB)
+	categoryService = NewCategoryService(conn.DB)
+	productService = NewProductService(conn.DB)
 	migrate()
 	prepareData()
 }
@@ -69,7 +73,7 @@ func dropData() {
 delete from public.products;
 delete from public.categories;
 	`
-	_, err := service.DB.Exec(sql)
+	_, err := categoryService.DB.Exec(sql)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,7 +81,7 @@ delete from public.categories;
 
 func shutdown() {
 	dropData()
-	if err := service.DB.Close(); err != nil {
+	if err := categoryService.DB.Close(); err != nil {
 		log.Fatal(err)
 	}
 }

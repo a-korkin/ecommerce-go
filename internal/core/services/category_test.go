@@ -6,14 +6,12 @@ import (
 	"github.com/a-korkin/ecommerce/internal/core/models"
 )
 
-var service *CategoryService
-
 func TestCreateCategory(t *testing.T) {
 	in := models.CategoryIn{
 		Title: "category@1",
 		Code:  "cat@1",
 	}
-	out, err := service.Create(&in)
+	out, err := categoryService.Create(&in)
 	if err != nil {
 		t.Errorf("Failed create category: %s", err)
 	}
@@ -28,7 +26,7 @@ func TestUpdateCategory(t *testing.T) {
 		Title: "upd category@1",
 		Code:  "upd cat@1",
 	}
-	out, err := service.Update(id, &in)
+	out, err := categoryService.Update(id, &in)
 	if err != nil {
 		t.Errorf("Failed to update category: %v", err)
 	}
@@ -38,7 +36,7 @@ func TestUpdateCategory(t *testing.T) {
 }
 
 func TestGetAllCategory(t *testing.T) {
-	out, err := service.GetAll()
+	out, err := categoryService.GetAll()
 	if err != nil {
 		t.Errorf("Failed to get all categories: %v", err)
 	}
@@ -49,7 +47,7 @@ func TestGetAllCategory(t *testing.T) {
 
 func TestGetByIDcategory(t *testing.T) {
 	id := "996be659-81f0-457c-8682-800abcfd64c2"
-	out, err := service.GetByID(id)
+	out, err := categoryService.GetByID(id)
 	if err != nil {
 		t.Errorf("Failed to get category: %v", err)
 	}
@@ -60,7 +58,7 @@ func TestGetByIDcategory(t *testing.T) {
 
 func TestDeleteCategory(t *testing.T) {
 	id := "efa8b389-a3bd-4e06-84dd-4960a0dfc55b"
-	if err := service.Delete(id); err != nil {
+	if err := categoryService.Delete(id); err != nil {
 		t.Errorf("Failed to delete category: %s", err)
 	}
 }
