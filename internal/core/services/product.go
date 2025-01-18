@@ -66,16 +66,19 @@ where id = $1::uuid`
 	return &out, nil
 }
 
-func (s *ProductService) GetAll(category string) ([]*models.Product, error) {
+func (s *ProductService) GetAll(
+	pageParams *models.PageParams, category string) ([]*models.Product, error) {
 	sql := `
 select 
 	p.id, p.title, p.price, 
 	c.id as category_id, c.title as category_title, c.code as category_code
 from public.products as p
 inner join public.categories as c on c.id = p.category
-where coalesce($1, '') = '' or p.category = $1::uuid`
+where coalesce($1, '') = '' or p.category = $1::uuid
+offset $2::integer * $3::integer
+limit $3::integer`
 	products := []*models.Product{}
-	rows, err := s.DB.Queryx(sql, category)
+	rows, err := s.DB.Queryx(sql, category, pageParams.Page-1, pageParams.Limit)
 	if err != nil {
 		return nil, err
 	}

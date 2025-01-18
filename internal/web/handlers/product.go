@@ -98,8 +98,8 @@ func (h *ProductHandler) update(
 func (h *ProductHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	params := utils.GetQueryParams(r.URL.RawQuery)
 	category := params["category"]
-
-	prods, err := h.ProductService.GetAll(category)
+	pageParams := models.NewPageParams(r.URL.RawQuery)
+	prods, err := h.ProductService.GetAll(pageParams, category)
 	if err != nil {
 		log.Printf("failed to get products: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

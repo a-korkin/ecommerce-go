@@ -87,8 +87,10 @@ func shutdown() {
 }
 
 func TestMain(m *testing.M) {
+	log.Printf("starting main in service test...")
 	starting()
 	code := m.Run()
 	shutdown()
+	log.Printf("shutdown main in service test...")
 	os.Exit(code)
 }

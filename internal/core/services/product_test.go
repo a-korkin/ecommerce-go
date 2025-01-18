@@ -40,7 +40,8 @@ func TestUpdateProduct(t *testing.T) {
 
 func TestGetAllProducts(t *testing.T) {
 	categoryID := "688e64d3-c722-48e5-be96-850e419df2d6"
-	out, err := productService.GetAll(categoryID)
+	pageParams := models.NewPageParams("")
+	out, err := productService.GetAll(pageParams, categoryID)
 	if err != nil {
 		t.Errorf("Failed to get products by categoryID: %s", err)
 	}

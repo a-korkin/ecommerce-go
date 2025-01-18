@@ -93,8 +93,9 @@ func (h *CategoryHandler) update(
 	}
 }
 
-func (h *CategoryHandler) getAll(w http.ResponseWriter, _ *http.Request) {
-	categories, err := h.CategoryService.GetAll()
+func (h *CategoryHandler) getAll(w http.ResponseWriter, r *http.Request) {
+	pageParams := models.NewPageParams(r.URL.RawQuery)
+	categories, err := h.CategoryService.GetAll(pageParams)
 	if err != nil {
 		msg := fmt.Sprintf("failed to get categories: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)

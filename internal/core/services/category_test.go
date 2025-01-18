@@ -36,7 +36,8 @@ func TestUpdateCategory(t *testing.T) {
 }
 
 func TestGetAllCategory(t *testing.T) {
-	out, err := categoryService.GetAll()
+	pageParams := models.NewPageParams("")
+	out, err := categoryService.GetAll(pageParams)
 	if err != nil {
 		t.Errorf("Failed to get all categories: %v", err)
 	}
@@ -45,7 +46,7 @@ func TestGetAllCategory(t *testing.T) {
 	}
 }
 
-func TestGetByIDcategory(t *testing.T) {
+func TestGetByIDCategory(t *testing.T) {
 	id := "996be659-81f0-457c-8682-800abcfd64c2"
 	out, err := categoryService.GetByID(id)
 	if err != nil {

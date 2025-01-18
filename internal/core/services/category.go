@@ -40,12 +40,15 @@ returning id, title, code`
 	return &out, nil
 }
 
-func (s *CategoryService) GetAll() ([]*models.Category, error) {
+func (s *CategoryService) GetAll(pageParams *models.PageParams) ([]*models.Category, error) {
 	sql := `
 select id, title, code
-from public.categories`
+from public.categories
+offset $1::integer * $2::integer
+limit $2::integer`
 	categories := make([]*models.Category, 0)
-	if err := s.DB.Select(&categories, sql); err != nil {
+	err := s.DB.Select(&categories, sql, pageParams.Page-1, pageParams.Limit)
+	if err != nil {
 		return nil, err
 	}
 	return categories, nil
