@@ -35,7 +35,6 @@ func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		path := "/{id}"
 		vars := utils.GetVars(r.RequestURI, path)
-		log.Printf("url: %s", r.RequestURI)
 		id, ok := vars["id"]
 		if !ok {
 			p.getAll(w, r)
