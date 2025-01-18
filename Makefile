@@ -1,3 +1,5 @@
+prepare: 
+	goose up
 run:
 	go run cmd/main.go
 test:
