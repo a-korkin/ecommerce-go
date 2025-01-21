@@ -18,7 +18,7 @@ func (s *UserService) Create(in *models.UserIn) (*models.User, error) {
 insert into public.users(first_name, last_name)
 values($1, $2)
 returning id, last_name, first_name`
-	row, err := s.DB.Query(sql, in.LastName, in.FirstName)
+	row, err := s.DB.Query(sql, in.FirstName, in.LastName)
 	if err != nil {
 		return nil, err
 	}

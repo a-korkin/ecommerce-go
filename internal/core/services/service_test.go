@@ -12,6 +12,7 @@ import (
 
 var categoryService *CategoryService
 var productService *ProductService
+var userService *UserService
 
 func migrate() {
 	if err := goose.SetDialect("postgres"); err != nil {
@@ -46,6 +47,12 @@ values
 	('c4b129bd-43cb-4922-85ba-210dbd120ac3', 'product@7', 'efa8b389-a3bd-4e06-84dd-4960a0dfc55b', 12.07),
 	('66724666-13ed-47f7-b042-eab7694e7499', 'product@8', '996be659-81f0-457c-8682-800abcfd64c2', 37.88),
 	('74958436-3427-4608-94b8-854c5db62e97', 'product@9', 'efa8b389-a3bd-4e06-84dd-4960a0dfc55b', 3.63);
+
+insert into public.users(id, last_name, first_name)
+values
+	('4636a25d-02ee-4eb8-9757-efd677677076', 'Ivanov', 'Ivan'),
+	('5e782875-4d9c-4641-be3c-afddeb05c083', 'Petrov', 'Petr'),
+	('d3f729cb-43c0-40c4-9084-74fb2b0bd408', 'Sidorov', 'Sidr');
 	`
 	_, err := categoryService.DB.Exec(sql)
 	if err != nil {
@@ -64,6 +71,7 @@ dbname=ecommerce_testdb sslmode=disable`)
 	}
 	categoryService = NewCategoryService(conn.DB)
 	productService = NewProductService(conn.DB)
+	userService = NewUserService(conn.DB)
 	migrate()
 	prepareData()
 }
@@ -72,6 +80,7 @@ func dropData() {
 	sql := `
 delete from public.products;
 delete from public.categories;
+delete from public.users;
 	`
 	_, err := categoryService.DB.Exec(sql)
 	if err != nil {
