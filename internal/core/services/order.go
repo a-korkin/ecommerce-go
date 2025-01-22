@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/a-korkin/ecommerce/internal/core/models"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
@@ -36,7 +37,7 @@ func (o *OrderService) ShutDown() {
 	}
 }
 
-func (o *OrderService) Run() {
+func (o *OrderService) Run(ctx context.Context) {
 	if err := o.Consumer.SubscribeTopics([]string{o.Topic}, nil); err != nil {
 		log.Fatalf("Failed subscribe to kafka topics: %s", err)
 	}
@@ -52,13 +53,14 @@ func (o *OrderService) Run() {
 			log.Fatalf("Failed to unmarshalling order: %s", err)
 		}
 
-		sql := `
-insert into public.orders(product_id, user_id, amount)
-values($1, $2, $3)
-returing id, product_id, user_id, amount`
-		_, err = o.DB.Query(sql, order.ProductID, order.UserID, order.Amount)
-		if err != nil {
-			log.Fatalf("Failed to make order: %s", err)
-		}
+		log.Printf("order in: %+v", order)
+		// 		sql := `
+		// insert into public.orders(product_id, user_id, amount)
+		// values($1, $2, $3)
+		// returning id, product_id, user_id, amount`
+		// 		_, err = o.DB.Query(sql, order.ProductID, order.UserID, order.Amount)
+		// 		if err != nil {
+		// 			log.Fatalf("Failed to make order: %s", err)
+		// 		}
 	}
 }

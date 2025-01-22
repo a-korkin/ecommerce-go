@@ -12,18 +12,33 @@ import (
 
 	"github.com/a-korkin/ecommerce/configs"
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
+	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/a-korkin/ecommerce/internal/web/handlers"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
-var DBConnection *db.PostgresConnection
-var KafkaProducer *kafka.Producer
-var Server http.Server
-var Ctx context.Context
+// var DBConnection *db.PostgresConnection
+// var KafkaProducer *kafka.Producer
+// var Server http.Server
+// var Ctx context.Context
+
+type AppState struct {
+	DBConnection  *db.PostgresConnection
+	KafkaProducer *kafka.Producer
+	Server        http.Server
+	KafkaService  *services.OrderService
+	Ctx           context.Context
+}
+
+func NewAppState() *AppState {
+	return &AppState{}
+}
+
+var appState *AppState
 
 func connectToDB() {
 	var err error
-	DBConnection, err = db.NewDBConnection(
+	appState.DBConnection, err = db.NewDBConnection(
 		configs.GetEnv("GOOSE_DRIVER"), configs.GetEnv("GOOSE_DBSTRING"))
 	if err != nil {
 		log.Fatalf("failed to connect to db: %v", err)
@@ -32,7 +47,7 @@ func connectToDB() {
 
 func connectToKafka() {
 	var err error
-	KafkaProducer, err = kafka.NewProducer(&kafka.ConfigMap{
+	appState.KafkaProducer, err = kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": configs.GetEnv("KAFKA_HOST"),
 	})
 	if err != nil {
@@ -42,15 +57,15 @@ func connectToKafka() {
 }
 
 func createWebServer() {
-	Server = http.Server{
+	appState.Server = http.Server{
 		Addr: ":8080",
 	}
-	router := handlers.NewRouter(DBConnection.DB, KafkaProducer)
+	router := handlers.NewRouter(appState.DBConnection.DB, appState.KafkaProducer)
 	http.Handle("/", router)
 
 	go func() {
 		log.Println("server running")
-		err := Server.ListenAndServe()
+		err := appState.Server.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("failed to start server: %v", err)
 		}
@@ -59,7 +74,7 @@ func createWebServer() {
 
 func runWebApp() {
 	var stop context.CancelFunc
-	Ctx, stop = signal.NotifyContext(
+	appState.Ctx, stop = signal.NotifyContext(
 		context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
@@ -67,31 +82,52 @@ func runWebApp() {
 	connectToKafka()
 	createWebServer()
 
-	<-Ctx.Done()
+	<-appState.Ctx.Done()
 	log.Println("server terminated")
 }
 
 func shutDownWebApp() {
 	log.Println("db connection closed")
-	if err := DBConnection.CloseDBConnection(); err != nil {
+	if err := appState.DBConnection.CloseDBConnection(); err != nil {
 		log.Fatalf("failed to close db connection: %v", err)
 	}
 
 	log.Printf("kafka producer closed")
-	KafkaProducer.Close()
+	appState.KafkaProducer.Close()
 
-	if err := Server.Shutdown(Ctx); err != nil {
+	if err := appState.Server.Shutdown(appState.Ctx); err != nil {
 		log.Fatalf("failed to shutdown server: %v", err)
 	}
 	log.Println("shutting down")
 }
 
 func runBrokerConsumer() {
-	log.Printf("hello i love you, want you tell me your name?\n")
+	var stop context.CancelFunc
+	appState.Ctx, stop = signal.NotifyContext(
+		context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	connectToDB()
+
+	appState.KafkaService = services.NewOrderService(
+		appState.DBConnection.DB,
+		configs.GetEnv("KAFKA_HOST"),
+		configs.GetEnv("KAFKA_TOPIC"))
+	log.Printf("consumer started")
+
+	appState.KafkaService.Run(appState.Ctx)
+
+	<-appState.Ctx.Done()
 }
 
 func shutDownBrokerConsumer() {
-	log.Printf("goodbye my love, goodbye!\n")
+	appState.KafkaService.ShutDown()
+
+	log.Println("db connection closed")
+	if err := appState.DBConnection.CloseDBConnection(); err != nil {
+		log.Fatalf("failed to close db connection: %v", err)
+	}
+	log.Printf("consumer stoped")
 }
 
 func usage() {
@@ -107,6 +143,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	appState = NewAppState()
+
 	switch os.Args[1] {
 	case "-w":
 		fallthrough
@@ -117,6 +155,7 @@ func main() {
 		fallthrough
 	case "--broker":
 		runBrokerConsumer()
+		// service.Run()
 		defer shutDownBrokerConsumer()
 	default:
 		usage()
