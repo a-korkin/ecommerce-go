@@ -11,9 +11,10 @@ import (
 	"github.com/a-korkin/ecommerce/configs"
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
 	"github.com/a-korkin/ecommerce/internal/web/handlers"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
-func main() {
+func run() {
 	conn, err := db.NewDBConnection(
 		configs.GetEnv("GOOSE_DRIVER"), configs.GetEnv("GOOSE_DBSTRING"))
 	if err != nil {
@@ -30,7 +31,24 @@ func main() {
 		Addr: ":8080",
 	}
 
-	router := handlers.NewRouter(conn.DB)
+	// kafka
+	const (
+		KafkaServer = "localhost:9092"
+		KafkaTopic  = "orders-v1-topic"
+	)
+	p, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": KafkaServer,
+	})
+	if err != nil {
+		log.Fatalf("failed to create kafka producer: %s", err)
+	}
+	log.Printf("kafka producer started")
+	defer func() {
+		log.Printf("kafka producer closed")
+		p.Close()
+	}()
+
+	router := handlers.NewRouter(conn.DB, p)
 	http.Handle("/", router)
 
 	ctx, stop := signal.NotifyContext(
@@ -52,4 +70,8 @@ func main() {
 		log.Fatalf("failed to shutdown server: %v", err)
 	}
 	log.Println("shutting down")
+}
+
+func main() {
+	run()
 }

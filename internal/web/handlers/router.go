@@ -6,25 +6,28 @@ import (
 
 	"github.com/a-korkin/ecommerce/internal/core/services"
 	"github.com/a-korkin/ecommerce/internal/utils"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/jmoiron/sqlx"
 )
 
 type Router struct {
-	Products   *ProductHandler
-	Categories *CategoryHandler
-	Users      *UserHandler
-	Orders     *OrderHandler
+	KafkaProducer *kafka.Producer
+	Products      *ProductHandler
+	Categories    *CategoryHandler
+	Users         *UserHandler
+	Orders        *OrderHandler
 }
 
-func NewRouter(db *sqlx.DB) *Router {
+func NewRouter(db *sqlx.DB, kafkaProducer *kafka.Producer) *Router {
 	products := services.NewProductService(db)
 	categories := services.NewCategoryService(db)
 	users := services.NewUserService(db)
 	return &Router{
-		Products:   NewProductHandler(products),
-		Categories: NewCategoryHanlder(categories),
-		Users:      NewUserHandler(users),
-		Orders:     NewOrderHandler(),
+		KafkaProducer: kafkaProducer,
+		Products:      NewProductHandler(products),
+		Categories:    NewCategoryHanlder(categories),
+		Users:         NewUserHandler(users),
+		Orders:        NewOrderHandler(kafkaProducer),
 	}
 }
 

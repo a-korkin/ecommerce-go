@@ -3,6 +3,7 @@ module github.com/a-korkin/ecommerce
 go 1.23.4
 
 require (
+	github.com/confluentinc/confluent-kafka-go/v2 v2.8.0
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
