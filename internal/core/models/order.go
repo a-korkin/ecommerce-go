@@ -8,3 +8,9 @@ type Order struct {
 	UserID    uuid.UUID `json:"user_id"`
 	Amount    int       `json:"amount"`
 }
+
+type OrderIn struct {
+	ProductID uuid.UUID `json:"product_id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Amount    int       `json:"amount"`
+}
