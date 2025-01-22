@@ -20,9 +20,9 @@ func NewCategoryHanlder(service *services.CategoryService) *CategoryHandler {
 
 func (h *CategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "POST":
+	case http.MethodPost:
 		h.create(w, r)
-	case "PUT":
+	case http.MethodPut:
 		path := "/{id}"
 		vars := utils.GetVars(r.RequestURI, path)
 		id, ok := vars["id"]
@@ -32,7 +32,7 @@ func (h *CategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		h.update(w, r, id)
-	case "GET":
+	case http.MethodGet:
 		path := "/{id}"
 		vars := utils.GetVars(r.RequestURI, path)
 		id, ok := vars["id"]
@@ -41,7 +41,7 @@ func (h *CategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		h.getAll(w, r)
-	case "DELETE":
+	case http.MethodDelete:
 		path := "/{id}"
 		vars := utils.GetVars(r.RequestURI, path)
 		id, ok := vars["id"]

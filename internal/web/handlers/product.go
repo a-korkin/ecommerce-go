@@ -23,16 +23,16 @@ func NewProductHandler(service *services.ProductService) *ProductHandler {
 
 func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "POST":
+	case http.MethodPost:
 		p.create(w, r)
-	case "PUT":
+	case http.MethodPut:
 		path := "/{id}"
 		vars := utils.GetVars(r.RequestURI, path)
 		id, ok := vars["id"]
 		if ok {
 			p.update(w, r, id)
 		}
-	case "GET":
+	case http.MethodGet:
 		path := "/{id}"
 		vars := utils.GetVars(r.RequestURI, path)
 		id, ok := vars["id"]
@@ -41,7 +41,7 @@ func (p *ProductHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		p.getByID(w, r, id)
-	case "DELETE":
+	case http.MethodDelete:
 		path := "/{id}"
 		vars := utils.GetVars(r.RequestURI, path)
 		id, ok := vars["id"]
