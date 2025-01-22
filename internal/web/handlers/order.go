@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
@@ -61,42 +60,45 @@ func (o *OrderHandler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Order have been placed to broker\n"))
+
 	// consumer
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
-		"group.id":          "product-service",
-		"auto.offset.reset": "earliest",
-	})
-	if err != nil {
-		msg := fmt.Sprintf("Failed to create kafka consumer: %s", err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-	defer func() {
-		if err := c.Close(); err != nil {
-			log.Fatalf("Failed to close kafka consumer: %s", err)
-		}
-	}()
-	if err = c.SubscribeTopics([]string{topic}, nil); err != nil {
-		msg := fmt.Sprintf("Failed to subscribe topics: %s", err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-	msg, err := c.ReadMessage(-1)
-	if err != nil {
-		msg := fmt.Sprintf("Failed to read message from topic: %s", err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-	result := models.Order{}
-	if err = json.Unmarshal(msg.Value, &result); err != nil {
-		msg := fmt.Sprintf("Failed to unmarshalling order in consumer: %s", err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-	if err = json.NewEncoder(w).Encode(&result); err != nil {
-		msg := fmt.Sprintf("Failed to marshalling order in consumer: %s", err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
+	// c, err := kafka.NewConsumer(&kafka.ConfigMap{
+	// 	"bootstrap.servers": "localhost:9092",
+	// 	"group.id":          "product-service",
+	// 	"auto.offset.reset": "earliest",
+	// })
+	// if err != nil {
+	// 	msg := fmt.Sprintf("Failed to create kafka consumer: %s", err)
+	// 	http.Error(w, msg, http.StatusInternalServerError)
+	// 	return
+	// }
+	// defer func() {
+	// 	if err := c.Close(); err != nil {
+	// 		log.Fatalf("Failed to close kafka consumer: %s", err)
+	// 	}
+	// }()
+	// if err = c.SubscribeTopics([]string{topic}, nil); err != nil {
+	// 	msg := fmt.Sprintf("Failed to subscribe topics: %s", err)
+	// 	http.Error(w, msg, http.StatusInternalServerError)
+	// 	return
+	// }
+	// msg, err := c.ReadMessage(-1)
+	// if err != nil {
+	// 	msg := fmt.Sprintf("Failed to read message from topic: %s", err)
+	// 	http.Error(w, msg, http.StatusInternalServerError)
+	// 	return
+	// }
+	// result := models.Order{}
+	// if err = json.Unmarshal(msg.Value, &result); err != nil {
+	// 	msg := fmt.Sprintf("Failed to unmarshalling order in consumer: %s", err)
+	// 	http.Error(w, msg, http.StatusInternalServerError)
+	// 	return
+	// }
+	// if err = json.NewEncoder(w).Encode(&result); err != nil {
+	// 	msg := fmt.Sprintf("Failed to marshalling order in consumer: %s", err)
+	// 	http.Error(w, msg, http.StatusInternalServerError)
+	// 	return
+	// }
 }
