@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/a-korkin/ecommerce/configs"
@@ -115,13 +116,16 @@ func runBrokerConsumer() {
 		configs.GetEnv("KAFKA_TOPIC"))
 	log.Printf("consumer started")
 
-	appState.KafkaService.Run(appState.Ctx)
-
-	<-appState.Ctx.Done()
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go appState.KafkaService.Run(appState.Ctx, &wg)
+	wg.Wait()
 }
 
 func shutDownBrokerConsumer() {
-	appState.KafkaService.ShutDown()
+	if !appState.KafkaService.Consumer.IsClosed() {
+		appState.KafkaService.ShutDown()
+	}
 
 	log.Println("db connection closed")
 	if err := appState.DBConnection.CloseDBConnection(); err != nil {
