@@ -14,6 +14,7 @@ import (
 	"github.com/a-korkin/ecommerce/configs"
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
 	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/rpc"
 	"github.com/a-korkin/ecommerce/internal/web/handlers"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
@@ -132,6 +133,22 @@ func shutDownBrokerConsumer() {
 	log.Printf("consumer stoped")
 }
 
+func runGRPCServer() {
+	server := rpc.NewBillRPCServer()
+
+	var stop context.CancelFunc
+	appState.Ctx, stop = signal.NotifyContext(
+		context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	log.Printf("grpc server running")
+	go server.Run(appState.Ctx, configs.GetEnv("GRPC_PORT"))
+	<-appState.Ctx.Done()
+	log.Printf("grpc server shutting down")
+	server.GRPCServer.GracefulStop()
+	log.Printf("grpc server stoped")
+}
+
 func usage() {
 	fmt.Printf("Usage: make run [OPTION]\n")
 	fmt.Printf("	-w, --web		Run web server\n")
@@ -156,6 +173,10 @@ func main() {
 		fallthrough
 	case "--broker":
 		runBrokerConsumer()
+	case "-g":
+		fallthrough
+	case "--grpc":
+		runGRPCServer()
 	default:
 		usage()
 	}

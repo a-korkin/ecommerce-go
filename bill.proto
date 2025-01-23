@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/a-korkin/ecommerce/internal/grpc";
+option go_package = "github.com/a-korkin/ecommerce/internal/proto";
 
 message Order {
     string product_id = 1;
