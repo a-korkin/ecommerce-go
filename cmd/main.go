@@ -82,6 +82,7 @@ func runWebApp() {
 	connectToDB()
 	connectToKafka()
 	createWebServer()
+	defer shutDownWebApp()
 
 	<-appState.Ctx.Done()
 	log.Println("server terminated")
@@ -114,6 +115,8 @@ func runBrokerConsumer() {
 		appState.DBConnection.DB,
 		configs.GetEnv("KAFKA_HOST"),
 		configs.GetEnv("KAFKA_TOPIC"))
+
+	defer shutDownBrokerConsumer()
 	log.Printf("consumer started")
 
 	wg := sync.WaitGroup{}
@@ -154,13 +157,10 @@ func main() {
 		fallthrough
 	case "--web":
 		runWebApp()
-		defer shutDownWebApp()
 	case "-b":
 		fallthrough
 	case "--broker":
 		runBrokerConsumer()
-		// service.Run()
-		defer shutDownBrokerConsumer()
 	default:
 		usage()
 	}
