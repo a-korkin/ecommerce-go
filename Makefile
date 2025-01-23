@@ -2,6 +2,8 @@ include .env
 
 prepare: 
 	goose up
+	PGPASSWORD=${PGPASSWORD} psql -h localhost -U postgres \
+			   < scripts/create_test.sql
 run_web:
 	go run cmd/main.go -w
 run_consumer:
