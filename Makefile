@@ -13,3 +13,7 @@ test:
 seed_data:
 	PGPASSWORD=${PGPASSWORD} psql -h localhost -U postgres -d ${DB_NAME} \
 			   < scripts/seed.sql
+proto:
+	protoc --go_out=./internal/grpc --go_opt=paths=source_relative \
+		--go-grpc_out=./internal/grpc --go-grpc_opt=paths=source_relative \
+		*.proto

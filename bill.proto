@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "github.com/a-korkin/ecommerce/internal/grpc";
+
+message Order {
+    string product_id = 1;
+    int32 amount = 2;
+}
+
+message Bill {
+    string id = 1;
+    string user_id = 2;
+    float total_price = 3;
+    repeated Order orders = 4;
+}
+
+message UserID {
+    string id = 1;
+}
+
+service BillService {
+    rpc CreateBill(UserID) returns (Bill);
+}
