@@ -12,3 +12,9 @@ from
     from generate_series(1, 10000) as a
 ) as a
 inner join public.categories as b on b.code = 'cat#' || a.c;
+
+insert into public.users(last_name, first_name)
+values
+    ('Ivanov', 'Ivan'),
+    ('Petrov', 'Petr'),
+    ('Sidorov', 'Sidr');
