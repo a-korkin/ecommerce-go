@@ -18,11 +18,6 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
-// var DBConnection *db.PostgresConnection
-// var KafkaProducer *kafka.Producer
-// var Server http.Server
-// var Ctx context.Context
-
 type AppState struct {
 	DBConnection  *db.PostgresConnection
 	KafkaProducer *kafka.Producer

@@ -2,8 +2,10 @@ include .env
 
 prepare: 
 	goose up
-run:
-	go run cmd/main.go
+run_web:
+	go run cmd/main.go -w
+run_consumer:
+	go run cmd/main.go -b
 test:
 	go test ./... -v -cover
 seed_data:

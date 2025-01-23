@@ -3,6 +3,7 @@
 ## Preparing
 ```console
 docker compose up -d
+make prepare
 ```
 ## Seeding data
 ```console
@@ -10,8 +11,10 @@ make seed_data
 ```
 ## Starting
 ```console
-go run cmd/main.go -w # start web api server
-go run cmd/main.go -b # start kafka consumer
+# start web interface
+make run_web
+# start kafka consumer
+make run_consumer
 ```
 ## Testing
 ```console
