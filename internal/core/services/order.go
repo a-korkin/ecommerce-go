@@ -40,11 +40,11 @@ func (o *OrderService) ShutDown() {
 }
 
 func (o *OrderService) Run(ctx context.Context, wg *sync.WaitGroup) {
+	defer wg.Done()
 	if err := o.Consumer.SubscribeTopics([]string{o.Topic}, nil); err != nil {
 		log.Fatalf("Failed subscribe to kafka topics: %s", err)
 	}
 
-	defer wg.Done()
 	for {
 		select {
 		case <-ctx.Done():
@@ -65,7 +65,6 @@ func (o *OrderService) Run(ctx context.Context, wg *sync.WaitGroup) {
 				log.Fatalf("Failed to unmarshalling order: %s", err)
 			}
 
-			// log.Printf("order in: %+v", order)
 			sql := `
 insert into public.orders(product_id, user_id, amount)
 values($1, $2, $3)
