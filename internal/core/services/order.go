@@ -65,15 +65,15 @@ func (o *OrderService) Run(ctx context.Context, wg *sync.WaitGroup) {
 				log.Fatalf("Failed to unmarshalling order: %s", err)
 			}
 
-			log.Printf("order in: %+v", order)
-			// 		sql := `
-			// insert into public.orders(product_id, user_id, amount)
-			// values($1, $2, $3)
-			// returning id, product_id, user_id, amount`
-			// 		_, err = o.DB.Query(sql, order.ProductID, order.UserID, order.Amount)
-			// 		if err != nil {
-			// 			log.Fatalf("Failed to make order: %s", err)
-			// 		}
+			// log.Printf("order in: %+v", order)
+			sql := `
+insert into public.orders(product_id, user_id, amount)
+values($1, $2, $3)
+returning id, product_id, user_id, amount`
+			_, err = o.DB.Query(sql, order.ProductID, order.UserID, order.Amount)
+			if err != nil {
+				log.Fatalf("Failed to make order: %s", err)
+			}
 		}
 	}
 }

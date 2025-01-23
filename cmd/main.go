@@ -54,7 +54,7 @@ func connectToKafka() {
 	if err != nil {
 		log.Fatalf("failed to create kafka producer: %s", err)
 	}
-	log.Printf("kafka producer started")
+	log.Printf("producer started")
 }
 
 func createWebServer() {
@@ -94,7 +94,7 @@ func shutDownWebApp() {
 		log.Fatalf("failed to close db connection: %v", err)
 	}
 
-	log.Printf("kafka producer closed")
+	log.Printf("producer closed")
 	appState.KafkaProducer.Close()
 
 	if err := appState.Server.Shutdown(appState.Ctx); err != nil {
