@@ -2,21 +2,36 @@ package rpc
 
 import (
 	"context"
-	pb "github.com/a-korkin/ecommerce/internal/proto"
-	"google.golang.org/grpc"
 	"log"
 	"net"
+
+	"github.com/a-korkin/ecommerce/internal/core/services"
+	pb "github.com/a-korkin/ecommerce/internal/proto"
+	"github.com/jmoiron/sqlx"
+	"google.golang.org/grpc"
 )
 
 type BillRPCServer struct {
 	pb.UnimplementedBillServiceServer
+	Service *services.BillService
 }
 
-func NewBillRPCServer() *BillRPCServer {
-	return &BillRPCServer{}
+func NewBillRPCServer(db *sqlx.DB) *BillRPCServer {
+	service := services.NewBillService(db)
+	return &BillRPCServer{Service: service}
 }
-func (r *BillRPCServer) CreateBill(context.Context, *pb.UserID) (*pb.Bill, error) {
-	return nil, nil
+func (r *BillRPCServer) CreateBill(
+	ctx context.Context, userID *pb.UserID) (*pb.Bill, error) {
+	out, err := r.Service.GetBillByUser(userID.Id)
+	if err != nil {
+		return nil, err
+	}
+	bill := pb.Bill{
+		Id:         out.ID.String(),
+		UserId:     userID.Id,
+		TotalPrice: out.TotalSum,
+	}
+	return &bill, nil
 }
 
 func (r *BillRPCServer) Run(ctx context.Context, port string) {

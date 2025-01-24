@@ -57,7 +57,10 @@ func createWebServer() {
 	appState.Server = http.Server{
 		Addr: ":8080",
 	}
-	router := handlers.NewRouter(appState.DBConnection.DB, appState.KafkaProducer)
+	router := handlers.NewRouter(
+		appState.DBConnection.DB,
+		appState.KafkaProducer,
+		configs.GetEnv("GRPC_PORT"))
 	http.Handle("/", router)
 
 	go func() {
@@ -133,8 +136,17 @@ func shutDownBrokerConsumer() {
 	log.Printf("consumer stoped")
 }
 
+func shutDownGRPCServer() {
+	log.Println("db connection closed")
+	if err := appState.DBConnection.CloseDBConnection(); err != nil {
+		log.Fatalf("failed to close db connection: %v", err)
+	}
+}
+
 func runGRPCServer() {
-	server := rpc.NewBillRPCServer()
+	connectToDB()
+	server := rpc.NewBillRPCServer(appState.DBConnection.DB)
+	defer shutDownGRPCServer()
 
 	var stop context.CancelFunc
 	appState.Ctx, stop = signal.NotifyContext(

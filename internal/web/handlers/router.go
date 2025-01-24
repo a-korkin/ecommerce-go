@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/rpc"
 	"github.com/a-korkin/ecommerce/internal/utils"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/jmoiron/sqlx"
@@ -19,18 +21,21 @@ type Router struct {
 	Bills         *BillHandler
 }
 
-func NewRouter(db *sqlx.DB, kafkaProducer *kafka.Producer) *Router {
+func NewRouter(db *sqlx.DB, kafkaProducer *kafka.Producer, grpcHost string) *Router {
 	products := services.NewProductService(db)
 	categories := services.NewCategoryService(db)
 	users := services.NewUserService(db)
-	bills := services.NewBillService(db)
+	client, err := rpc.NewGRPCClient(grpcHost)
+	if err != nil {
+		log.Fatalf("Failed to create grpc client: %s", err)
+	}
 	return &Router{
 		KafkaProducer: kafkaProducer,
 		Products:      NewProductHandler(products),
 		Categories:    NewCategoryHanlder(categories),
 		Users:         NewUserHandler(users),
 		Orders:        NewOrderHandler(kafkaProducer),
-		Bills:         NewBillHandler(bills),
+		Bills:         NewBillHandler(&client),
 	}
 }
 

@@ -5,16 +5,18 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/core/models"
+	pb "github.com/a-korkin/ecommerce/internal/proto"
 	"github.com/a-korkin/ecommerce/internal/utils"
+	"github.com/gofrs/uuid"
 )
 
 type BillHandler struct {
-	BillService *services.BillService
+	Client *pb.BillServiceClient
 }
 
-func NewBillHandler(service *services.BillService) *BillHandler {
-	return &BillHandler{BillService: service}
+func NewBillHandler(client *pb.BillServiceClient) *BillHandler {
+	return &BillHandler{Client: client}
 }
 
 func (b *BillHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -32,11 +34,19 @@ func (b *BillHandler) getBillByUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-	out, err := b.BillService.GetBillByUser(userID)
+
+	in := pb.UserID{Id: userID}
+	client := *b.Client
+	bill, err := client.CreateBill(r.Context(), &in)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to get bill by user: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
+	}
+	out := models.Bill{
+		ID:       uuid.FromStringOrNil(bill.Id),
+		TotalSum: bill.TotalPrice,
+		Orders:   nil,
 	}
 	if err = json.NewEncoder(w).Encode(&out); err != nil {
 		msg := fmt.Sprintf("Failed to marshalled bill: %s", err)
