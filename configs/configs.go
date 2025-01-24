@@ -13,5 +13,9 @@ func init() {
 }
 
 func GetEnv(key string) string {
-	return os.Getenv(key)
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatalf("env variable not found: %s", key)
+	}
+	return value
 }
