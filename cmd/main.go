@@ -153,6 +153,7 @@ func usage() {
 	fmt.Printf("Usage: make run [OPTION]\n")
 	fmt.Printf("	-w, --web		Run web server\n")
 	fmt.Printf("	-b, --broker	Run message broker(kafka)\n")
+	fmt.Printf("	-g, --grpc		Run web server\n")
 }
 
 func main() {

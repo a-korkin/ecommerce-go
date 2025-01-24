@@ -4,9 +4,7 @@
 ```console
 docker compose up -d
 make prepare
-```
-## Seeding data
-```console
+# seed mock data if needed
 make seed_data
 ```
 ## Starting
@@ -15,12 +13,13 @@ make seed_data
 make run_web
 # start kafka consumer
 make run_consumer
+# start grpc server
+make run_grpc
 ```
 ## Testing
 ```console
 make test
 ```
-
 ## Examples of requests
 ```http
 ### expect code 201 and info about new product
