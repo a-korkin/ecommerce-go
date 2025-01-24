@@ -10,11 +10,13 @@ import (
 
 type BillRPCServer struct {
 	pb.UnimplementedBillServiceServer
-	GRPCServer *grpc.Server
 }
 
 func NewBillRPCServer() *BillRPCServer {
 	return &BillRPCServer{}
+}
+func (r *BillRPCServer) CreateBill(context.Context, *pb.UserID) (*pb.Bill, error) {
+	return nil, nil
 }
 
 func (r *BillRPCServer) Run(ctx context.Context, port string) {
@@ -24,8 +26,15 @@ func (r *BillRPCServer) Run(ctx context.Context, port string) {
 	}
 	s := grpc.NewServer()
 	pb.RegisterBillServiceServer(s, r)
-	r.GRPCServer = s
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("Failed to run grpc server: %s", err)
-	}
+
+	go func() {
+		log.Printf("grpc server started")
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("Failed to run grpc server: %s", err)
+		}
+	}()
+	<-ctx.Done()
+	log.Printf("grpc server shutting down")
+	s.GracefulStop()
+	log.Printf("grpc server stoped")
 }

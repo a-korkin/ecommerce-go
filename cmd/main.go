@@ -140,13 +140,7 @@ func runGRPCServer() {
 	appState.Ctx, stop = signal.NotifyContext(
 		context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-
-	log.Printf("grpc server running")
-	go server.Run(appState.Ctx, configs.GetEnv("GRPC_PORT"))
-	<-appState.Ctx.Done()
-	log.Printf("grpc server shutting down")
-	server.GRPCServer.GracefulStop()
-	log.Printf("grpc server stoped")
+	server.Run(appState.Ctx, configs.GetEnv("GRPC_PORT"))
 }
 
 func usage() {
