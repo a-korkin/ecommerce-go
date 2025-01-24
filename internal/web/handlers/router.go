@@ -16,18 +16,21 @@ type Router struct {
 	Categories    *CategoryHandler
 	Users         *UserHandler
 	Orders        *OrderHandler
+	Bills         *BillHandler
 }
 
 func NewRouter(db *sqlx.DB, kafkaProducer *kafka.Producer) *Router {
 	products := services.NewProductService(db)
 	categories := services.NewCategoryService(db)
 	users := services.NewUserService(db)
+	bills := services.NewBillService(db)
 	return &Router{
 		KafkaProducer: kafkaProducer,
 		Products:      NewProductHandler(products),
 		Categories:    NewCategoryHanlder(categories),
 		Users:         NewUserHandler(users),
 		Orders:        NewOrderHandler(kafkaProducer),
+		Bills:         NewBillHandler(bills),
 	}
 }
 
@@ -41,6 +44,8 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		router.Users.ServeHTTP(w, r)
 	case "/orders":
 		router.Orders.ServeHTTP(w, r)
+	case "/bills":
+		router.Bills.ServeHTTP(w, r)
 	default:
 		fmt.Fprintf(w, "hello from main router\n")
 	}
