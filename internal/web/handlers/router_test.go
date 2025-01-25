@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
+	"github.com/a-korkin/ecommerce/internal/core/adapters/mock/services"
 	"github.com/pressly/goose/v3"
 )
 
@@ -61,23 +62,6 @@ values
 	}
 }
 
-// var users []*models.User
-
-// func initUsers() {
-// 	dir, err := os.Getwd()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	testFilesDir := filepath.Join(dir, "../../../test")
-// 	usersDataFile := filepath.Join(testFilesDir, "users.json")
-//
-// 	file, err := os.Open(usersDataFile)
-//
-// 	if err = json.NewDecoder(file).Decode(&users); err != nil {
-// 		log.Fatal(err)
-// 	}
-// }
-
 func start() {
 	var err error
 	connection, err = db.NewDBConnection(
@@ -89,9 +73,13 @@ dbname=ecommerce_testdb sslmode=disable`)
 		log.Fatal(err)
 	}
 	router = NewRouter(connection.DB, nil, "")
+	mockService, err := services.NewCategoryMockService()
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.Categories = NewCategoryHandler(mockService)
 	migrate()
 	prepareData()
-	// initUsers()
 }
 
 func shutdown() {

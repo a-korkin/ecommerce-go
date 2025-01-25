@@ -20,7 +20,7 @@ func NewCategoryMockService() (*CategoryMockService, error) {
 	if err != nil {
 		return nil, err
 	}
-	testJSON := filepath.Join(currentDir, "test", "categories.json")
+	testJSON := filepath.Join(currentDir, "../../../test", "categories.json")
 	data := make([]*models.Category, 4)
 	file, err := os.Open(testJSON)
 	if err != nil {

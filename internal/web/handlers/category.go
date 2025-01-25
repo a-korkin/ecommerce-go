@@ -14,7 +14,7 @@ type CategoryHandler struct {
 	Repo repo.CategoryRepo
 }
 
-func NewCategoryHanlder(repo repo.CategoryRepo) *CategoryHandler {
+func NewCategoryHandler(repo repo.CategoryRepo) *CategoryHandler {
 	return &CategoryHandler{Repo: repo}
 }
 

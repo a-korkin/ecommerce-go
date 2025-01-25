@@ -11,6 +11,29 @@ import (
 	"github.com/a-korkin/ecommerce/internal/core/models"
 )
 
+// [
+//     {
+//         "id": "5d759639-093c-4b6b-9f45-2e586539464e",
+//         "title": "category#1",
+//         "code": "cat#1"
+//     },
+//     {
+//         "id": "29e2f9a5-dbbf-4128-ba81-a27a8838bd9b",
+//         "title": "category#2",
+//         "code": "cat#2"
+//     },
+//     {
+//         "id": "9256cf37-f395-46fc-86e8-33e99ce2ec60",
+//         "title": "category#3",
+//         "code": "cat#3"
+//     },
+//     {
+//         "id": "d5ab1b04-23e3-4568-bc51-4ddf58630ea2",
+//         "title": "category#4",
+//         "code": "cat#4"
+//     }
+// ]
+
 func TestGetAllCategories(t *testing.T) {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/categories", nil)
@@ -22,7 +45,7 @@ func TestGetAllCategories(t *testing.T) {
 }
 
 func TestGetByIDCategory(t *testing.T) {
-	id := "688e64d3-c722-48e5-be96-850e419df2d6"
+	id := "5d759639-093c-4b6b-9f45-2e586539464e"
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest(
 		http.MethodGet, fmt.Sprintf("/categories/%s", id), nil)
@@ -35,14 +58,14 @@ func TestGetByIDCategory(t *testing.T) {
 	if err := json.NewDecoder(rr.Body).Decode(&out); err != nil {
 		t.Errorf("Failed to unmarshalling category: %v", err)
 	}
-	if out.Title != "category@1" || out.Code != "cat@1" {
+	if out.Title != "category#1" || out.Code != "cat#1" {
 		t.Errorf("Wrong unmarshalling category: %v", out)
 	}
 }
 
 func TestCreateCategory(t *testing.T) {
 	rr := httptest.NewRecorder()
-	categoryData := []byte(`{"title":"category@4", "code":"cat@4"}`)
+	categoryData := []byte(`{"title":"category#5", "code":"cat#5"}`)
 	req := httptest.NewRequest(http.MethodPost, "/categories",
 		bytes.NewBuffer(categoryData))
 	req.Header.Set("Content-Type", "application/json")
@@ -56,13 +79,13 @@ func TestCreateCategory(t *testing.T) {
 	if err := json.NewDecoder(rr.Body).Decode(&out); err != nil {
 		t.Errorf("Failed to unmarshalling category: %s", err)
 	}
-	if out.Title != "category@4" || out.Code != "cat@4" {
+	if out.Title != "category#5" || out.Code != "cat#5" {
 		t.Errorf("Wrong unmarshalling category, got: %v", out)
 	}
 }
 
 func TestUpdateCategory(t *testing.T) {
-	id := "996be659-81f0-457c-8682-800abcfd64c2"
+	id := "29e2f9a5-dbbf-4128-ba81-a27a8838bd9b"
 	rr := httptest.NewRecorder()
 	categoryData := []byte(`{"title":"upd title", "code":"upd code"}`)
 	req := httptest.NewRequest(http.MethodPut,
@@ -83,7 +106,7 @@ func TestUpdateCategory(t *testing.T) {
 }
 
 func TestDeleteCategory(t *testing.T) {
-	id := "efa8b389-a3bd-4e06-84dd-4960a0dfc55b"
+	id := "d5ab1b04-23e3-4568-bc51-4ddf58630ea2"
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodDelete, "/categories", nil)
 	router.Categories.delete(rr, req, id)
