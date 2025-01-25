@@ -7,17 +7,17 @@ import (
 	"net/http"
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
-	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/ports/repo"
 	"github.com/a-korkin/ecommerce/internal/utils"
 )
 
 type ProductHandler struct {
-	ProductService *services.ProductService
+	Repo repo.ProductRepo
 }
 
-func NewProductHandler(service *services.ProductService) *ProductHandler {
+func NewProductHandler(repo repo.ProductRepo) *ProductHandler {
 	return &ProductHandler{
-		ProductService: service,
+		Repo: repo,
 	}
 }
 
@@ -60,7 +60,7 @@ func (h *ProductHandler) create(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	product, err := h.ProductService.Create(&in)
+	product, err := h.Repo.Create(&in)
 	if err != nil {
 		log.Printf("failed to create product: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -82,7 +82,7 @@ func (h *ProductHandler) update(
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	out, err := h.ProductService.Update(id, &in)
+	out, err := h.Repo.Update(id, &in)
 	if err != nil {
 		msg := fmt.Sprintf("failed to update product: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -99,7 +99,7 @@ func (h *ProductHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	params := utils.GetQueryParams(r.URL.RawQuery)
 	category := params["category"]
 	pageParams := models.NewPageParams(r.URL.RawQuery)
-	prods, err := h.ProductService.GetAll(pageParams, category)
+	prods, err := h.Repo.GetAll(pageParams, category)
 	if err != nil {
 		log.Printf("failed to get products: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -113,7 +113,7 @@ func (h *ProductHandler) getAll(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProductHandler) getByID(
 	w http.ResponseWriter, _ *http.Request, id string) {
-	product, err := h.ProductService.GetByID(id)
+	product, err := h.Repo.GetByID(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -127,7 +127,7 @@ func (h *ProductHandler) getByID(
 
 func (h *ProductHandler) delete(
 	w http.ResponseWriter, _ *http.Request, id string) {
-	if err := h.ProductService.Delete(id); err != nil {
+	if err := h.Repo.Delete(id); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

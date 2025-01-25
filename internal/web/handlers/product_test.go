@@ -13,7 +13,7 @@ import (
 func TestCreateProduct(t *testing.T) {
 	productData := []byte(`
 {
-	"title":"product@10", 
+	"title":"product#10", 
 	"category":"688e64d3-c722-48e5-be96-850e419df2d6", 
 	"price":772.32
 }`)
@@ -29,13 +29,13 @@ func TestCreateProduct(t *testing.T) {
 	if err := json.NewDecoder(w.Body).Decode(&out); err != nil {
 		t.Errorf("Failed to unmarshalling product: %s", err)
 	}
-	if out.Title != "product@10" {
-		t.Errorf("Expected: %s, got: %s", "product@10", out.Title)
+	if out.Title != "product#10" {
+		t.Errorf("Expected: %s, got: %s", "product#10", out.Title)
 	}
 }
 
 func TestGetByIDProduct(t *testing.T) {
-	id := "5c0d6b4f-2d94-4e91-b69f-78f3832a810d"
+	id := "3be0335e-e617-4179-a66d-e8a505f5949f"
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/products/%s", id), nil)
 	router.Products.getByID(w, r, id)
@@ -47,7 +47,7 @@ func TestGetByIDProduct(t *testing.T) {
 	if err := json.NewDecoder(w.Body).Decode(&out); err != nil {
 		t.Errorf("Failed to unmarshalling product: %s", err)
 	}
-	if out.Title != "product@1" {
+	if out.Title != "product#3" {
 		t.Errorf("Expected: %s, got: %s", "product@1", out.Title)
 	}
 }
@@ -70,7 +70,7 @@ func TestGetAllProducts(t *testing.T) {
 }
 
 func TestUpdateProduct(t *testing.T) {
-	id := "fd3310fd-2101-445f-ad3d-216fda4bd8a2"
+	id := "95e43ef5-e4b8-4fde-b91b-dd3ad847b778"
 	w := httptest.NewRecorder()
 	data := []byte(`
 {

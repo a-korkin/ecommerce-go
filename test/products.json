@@ -1,0 +1,42 @@
+[
+    {
+        "id": "47f538ec-2785-4e55-bd7f-17aaacee4dd6",
+        "title": "product#1",
+        "category": {
+            "id": "5d759639-093c-4b6b-9f45-2e586539464e",
+            "title": "category#1",
+            "code": "cat#1"
+        },
+        "price": 72.31
+    },
+    {
+        "id": "95e43ef5-e4b8-4fde-b91b-dd3ad847b778",
+        "title": "product#2",
+        "category": {
+            "id": "5d759639-093c-4b6b-9f45-2e586539464e",
+            "title": "category#1",
+            "code": "cat#1"
+        },
+        "price": 31.62 
+    }, 
+    {
+        "id": "3be0335e-e617-4179-a66d-e8a505f5949f",
+        "title": "product#3",
+        "category": {
+            "id": "9256cf37-f395-46fc-86e8-33e99ce2ec60",
+            "title": "category#3",
+            "code": "cat#3"
+        },
+        "price": 81.59 
+    }, 
+    {
+        "id": "8d2fd2e7-2090-4c04-9981-eef416215af7",
+        "title": "product#4",
+        "category": {
+            "id": "9256cf37-f395-46fc-86e8-33e99ce2ec60",
+            "title": "category#3",
+            "code": "cat#3"
+        },
+        "price": 234.23
+    } 
+]
