@@ -1,0 +1,22 @@
+[
+    {
+        "id": "5d759639-093c-4b6b-9f45-2e586539464e",
+        "title": "category#1",
+        "code": "cat#1"
+    },
+    {
+        "id": "29e2f9a5-dbbf-4128-ba81-a27a8838bd9b",
+        "title": "category#2",
+        "code": "cat#2"
+    },
+    {
+        "id": "9256cf37-f395-46fc-86e8-33e99ce2ec60",
+        "title": "category#3",
+        "code": "cat#3"
+    },
+    {
+        "id": "d5ab1b04-23e3-4568-bc51-4ddf58630ea2",
+        "title": "category#4",
+        "code": "cat#4"
+    }
+]

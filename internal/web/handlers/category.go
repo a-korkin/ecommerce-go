@@ -6,16 +6,16 @@ import (
 	"net/http"
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
-	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/ports/repo"
 	"github.com/a-korkin/ecommerce/internal/utils"
 )
 
 type CategoryHandler struct {
-	CategoryService *services.CategoryService
+	Repo repo.CategoryRepo
 }
 
-func NewCategoryHanlder(service *services.CategoryService) *CategoryHandler {
-	return &CategoryHandler{CategoryService: service}
+func NewCategoryHanlder(repo repo.CategoryRepo) *CategoryHandler {
+	return &CategoryHandler{Repo: repo}
 }
 
 func (h *CategoryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +58,7 @@ func (h *CategoryHandler) create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	out, err := h.CategoryService.Create(&in)
+	out, err := h.Repo.Create(&in)
 	if err != nil {
 		msg := fmt.Sprintf("failed to create category: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -80,7 +80,7 @@ func (h *CategoryHandler) update(
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	out, err := h.CategoryService.Update(id, &in)
+	out, err := h.Repo.Update(id, &in)
 	if err != nil {
 		msg := fmt.Sprintf("failed to update category: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -95,7 +95,7 @@ func (h *CategoryHandler) update(
 
 func (h *CategoryHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	pageParams := models.NewPageParams(r.URL.RawQuery)
-	categories, err := h.CategoryService.GetAll(pageParams)
+	categories, err := h.Repo.GetAll(pageParams)
 	if err != nil {
 		msg := fmt.Sprintf("failed to get categories: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -111,7 +111,7 @@ func (h *CategoryHandler) getAll(w http.ResponseWriter, r *http.Request) {
 
 func (h *CategoryHandler) getByID(
 	w http.ResponseWriter, _ *http.Request, id string) {
-	category, err := h.CategoryService.GetByID(id)
+	category, err := h.Repo.GetByID(id)
 	if err != nil {
 		msg := fmt.Sprintf("failed to get category: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -127,7 +127,7 @@ func (h *CategoryHandler) getByID(
 
 func (h *CategoryHandler) delete(
 	w http.ResponseWriter, _ *http.Request, id string) {
-	if err := h.CategoryService.Delete(id); err != nil {
+	if err := h.Repo.Delete(id); err != nil {
 		msg := fmt.Sprintf("failed to delete category: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return

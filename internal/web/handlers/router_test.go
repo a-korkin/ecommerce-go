@@ -88,7 +88,7 @@ dbname=ecommerce_testdb sslmode=disable`)
 	if err != nil {
 		log.Fatal(err)
 	}
-	router = NewRouter(connection.DB, nil)
+	router = NewRouter(connection.DB, nil, "")
 	migrate()
 	prepareData()
 	// initUsers()
