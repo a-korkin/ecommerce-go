@@ -1,14 +1,12 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
+	"github.com/a-korkin/ecommerce/internal/utils"
 )
 
 type CategoryMockService struct {
@@ -16,20 +14,8 @@ type CategoryMockService struct {
 }
 
 func NewCategoryMockService() (*CategoryMockService, error) {
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	testJSON := filepath.Join(currentDir, "../../../test", "categories.json")
 	data := make([]*models.Category, 4)
-	file, err := os.Open(testJSON)
-	if err != nil {
-		return nil, err
-	}
-	if err = json.NewDecoder(file).Decode(&data); err != nil {
-		return nil, err
-	}
-
+	utils.UnmarshallingFromFile("categories.json", &data)
 	return &CategoryMockService{Data: data}, nil
 }
 

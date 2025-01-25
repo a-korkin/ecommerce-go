@@ -1,7 +1,11 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -49,4 +53,25 @@ func GetVars(url string, path string) map[string]string {
 	tokens := getPathTokens(url)
 	patternPath := strings.Split(path, "/")[1:]
 	return zip(patternPath, tokens)
+}
+
+func UnmarshallingFromFile(fileName string, data interface{}) {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Failed to get working dir: %s", err)
+	}
+	filePath := filepath.Join(currentDir, "../../../test", fileName)
+	log.Printf("filepath: %s", filePath)
+	file, err := os.Open(filePath)
+	defer func() {
+		if err = file.Close(); err != nil {
+			log.Fatalf("Failed to close file: %s", err)
+		}
+	}()
+	if err != nil {
+		log.Fatalf("Failed to open file: %s", err)
+	}
+	if err = json.NewDecoder(file).Decode(&data); err != nil {
+		log.Fatalf("Failed to unmarshalling to data: %s", err)
+	}
 }

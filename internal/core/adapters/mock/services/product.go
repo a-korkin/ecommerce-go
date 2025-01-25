@@ -1,12 +1,10 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
+	"github.com/a-korkin/ecommerce/internal/utils"
 	"github.com/gofrs/uuid"
 )
 
@@ -15,19 +13,8 @@ type ProductsMockService struct {
 }
 
 func NewProductsMockService() (*ProductsMockService, error) {
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-	testJSON := filepath.Join(currentDir, "../../../test", "products.json")
 	data := make([]*models.Product, 4)
-	file, err := os.Open(testJSON)
-	if err != nil {
-		return nil, err
-	}
-	if err = json.NewDecoder(file).Decode(&data); err != nil {
-		return nil, err
-	}
+	utils.UnmarshallingFromFile("products.json", &data)
 
 	return &ProductsMockService{Data: data}, nil
 }
