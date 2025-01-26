@@ -22,7 +22,7 @@ func migrate() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	migrationDir := filepath.Join(dir, "../../../migrations")
+	migrationDir := filepath.Join(dir, "../../../../../migrations")
 	if err := goose.Up(categoryService.DB.DB, migrationDir); err != nil {
 		log.Fatal(err)
 	}

@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/core/adapters/db/services"
 	pb "github.com/a-korkin/ecommerce/internal/proto"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc"

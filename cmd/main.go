@@ -13,7 +13,7 @@ import (
 
 	"github.com/a-korkin/ecommerce/configs"
 	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
-	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/core/adapters/db/services"
 	"github.com/a-korkin/ecommerce/internal/rpc"
 	"github.com/a-korkin/ecommerce/internal/web/handlers"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"

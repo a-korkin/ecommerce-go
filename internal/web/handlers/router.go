@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/core/adapters/db/services"
 	"github.com/a-korkin/ecommerce/internal/rpc"
 	"github.com/a-korkin/ecommerce/internal/utils"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
