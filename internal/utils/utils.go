@@ -61,7 +61,6 @@ func UnmarshallingFromFile(fileName string, data interface{}) {
 		log.Fatalf("Failed to get working dir: %s", err)
 	}
 	filePath := filepath.Join(currentDir, "../../../test", fileName)
-	log.Printf("filepath: %s", filePath)
 	file, err := os.Open(filePath)
 	defer func() {
 		if err = file.Close(); err != nil {
