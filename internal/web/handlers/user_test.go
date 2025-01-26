@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -47,10 +48,10 @@ func TestGetAllUsers(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	w := httptest.NewRecorder()
+	id := "9d2914e4-685a-4a59-91cd-e5a5b1d52c28"
 	data := []byte(`{"last_name":"upd_last_name", "first_name":"upd_first_name"}`)
 	r := httptest.NewRequest(http.MethodPut,
-		"/users/4636a25d-02ee-4eb8-9757-efd677677076", bytes.NewBuffer(data))
-	id := "4636a25d-02ee-4eb8-9757-efd677677076"
+		fmt.Sprintf("/users/%s", id), bytes.NewBuffer(data))
 	router.Users.update(w, r, id)
 	if status := w.Code; status != http.StatusOK {
 		t.Errorf("Handler returned wrong status code, got: %v, want: %v",
@@ -67,9 +68,9 @@ func TestUpdateUser(t *testing.T) {
 
 func TestGetByIDUser(t *testing.T) {
 	w := httptest.NewRecorder()
-	id := "5e782875-4d9c-4641-be3c-afddeb05c083"
+	id := "7bb0c72b-6922-4d7b-839b-840ad3360442"
 	r := httptest.NewRequest(
-		http.MethodGet, "/users/5e782875-4d9c-4641-be3c-afddeb05c083", nil)
+		http.MethodGet, fmt.Sprintf("/users/%s", id), nil)
 	router.Users.getByID(w, r, id)
 	if status := w.Code; status != http.StatusOK {
 		t.Errorf("Handler returned wrong status code, want: %v, got: %v",
@@ -86,9 +87,9 @@ func TestGetByIDUser(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	w := httptest.NewRecorder()
-	id := "d3f729cb-43c0-40c4-9084-74fb2b0bd408"
+	id := "9cb84f01-4835-48ed-9160-d34e12168c31"
 	r := httptest.NewRequest(
-		http.MethodDelete, "/users/d3f729cb-43c0-40c4-9084-74fb2b0bd408", nil)
+		http.MethodDelete, fmt.Sprintf("/users/%s", id), nil)
 	router.Users.delete(w, r, id)
 	if status := w.Code; status != http.StatusNoContent {
 		t.Errorf("Handler returned wrong status code, got: %v, want: %v",

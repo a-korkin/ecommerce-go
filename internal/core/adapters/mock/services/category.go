@@ -13,10 +13,10 @@ type CategoryMockService struct {
 	Data []*models.Category
 }
 
-func NewCategoryMockService() (*CategoryMockService, error) {
+func NewCategoryMockService() *CategoryMockService {
 	data := make([]*models.Category, 4)
 	utils.UnmarshallingFromFile("categories.json", &data)
-	return &CategoryMockService{Data: data}, nil
+	return &CategoryMockService{Data: data}
 }
 
 func (s *CategoryMockService) Create(

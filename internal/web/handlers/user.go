@@ -6,16 +6,16 @@ import (
 	"net/http"
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
-	"github.com/a-korkin/ecommerce/internal/core/services"
+	"github.com/a-korkin/ecommerce/internal/ports/repo"
 	"github.com/a-korkin/ecommerce/internal/utils"
 )
 
 type UserHandler struct {
-	UserService *services.UserService
+	Repo repo.UserRepo
 }
 
-func NewUserHandler(userService *services.UserService) *UserHandler {
-	return &UserHandler{UserService: userService}
+func NewUserHandler(repo repo.UserRepo) *UserHandler {
+	return &UserHandler{Repo: repo}
 }
 
 func (u *UserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +59,7 @@ func (u *UserHandler) create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-	out, err := u.UserService.Create(&in)
+	out, err := u.Repo.Create(&in)
 	if err != nil {
 		msg := fmt.Sprintf("failed to create user: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -75,7 +75,7 @@ func (u *UserHandler) create(w http.ResponseWriter, r *http.Request) {
 
 func (u *UserHandler) getAll(w http.ResponseWriter, r *http.Request) {
 	pageParams := models.NewPageParams(r.URL.RawQuery)
-	users, err := u.UserService.GetAll(pageParams)
+	users, err := u.Repo.GetAll(pageParams)
 	if err != nil {
 		msg := fmt.Sprintf("failed to get users: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -96,7 +96,7 @@ func (u *UserHandler) update(w http.ResponseWriter, r *http.Request, id string) 
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-	out, err := u.UserService.Update(id, &in)
+	out, err := u.Repo.Update(id, &in)
 	if err != nil {
 		msg := fmt.Sprintf("failed to update user: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -112,7 +112,7 @@ func (u *UserHandler) update(w http.ResponseWriter, r *http.Request, id string) 
 
 func (u *UserHandler) getByID(
 	w http.ResponseWriter, _ *http.Request, id string) {
-	out, err := u.UserService.GetByID(id)
+	out, err := u.Repo.GetByID(id)
 	if err != nil {
 		msg := fmt.Sprintf("failed to get user by id: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -129,7 +129,7 @@ func (u *UserHandler) getByID(
 func (u *UserHandler) delete(
 	w http.ResponseWriter, _ *http.Request, id string) {
 	w.WriteHeader(http.StatusNoContent)
-	if err := u.UserService.Delete(id); err != nil {
+	if err := u.Repo.Delete(id); err != nil {
 		msg := fmt.Sprintf("failed to delete user: %s", err)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return

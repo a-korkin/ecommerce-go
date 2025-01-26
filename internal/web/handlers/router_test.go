@@ -73,16 +73,14 @@ dbname=ecommerce_testdb sslmode=disable`)
 		log.Fatal(err)
 	}
 	router = NewRouter(connection.DB, nil, "")
-	catMock, err := services.NewCategoryMockService()
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	catMock := services.NewCategoryMockService()
 	router.Categories = NewCategoryHandler(catMock)
-	prodMock, err := services.NewProductsMockService()
-	if err != nil {
-		log.Fatal(err)
-	}
+	prodMock := services.NewProductsMockService()
 	router.Products = NewProductHandler(prodMock)
+	userMock := services.NewUsersMockService()
+	router.Users = NewUserHandler(userMock)
+
 	migrate()
 	prepareData()
 }

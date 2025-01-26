@@ -12,11 +12,11 @@ type ProductsMockService struct {
 	Data []*models.Product
 }
 
-func NewProductsMockService() (*ProductsMockService, error) {
+func NewProductsMockService() *ProductsMockService {
 	data := make([]*models.Product, 4)
 	utils.UnmarshallingFromFile("products.json", &data)
 
-	return &ProductsMockService{Data: data}, nil
+	return &ProductsMockService{Data: data}
 }
 
 func (s *ProductsMockService) Create(
