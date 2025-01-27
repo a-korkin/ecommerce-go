@@ -7,6 +7,8 @@ Contains multiple microservices.
 - Service calling by gRPC
 - Postgres DB
 
+![alt text](img/scheme.jpg)
+
 ## Preparing
 ```console
 docker compose up -d
