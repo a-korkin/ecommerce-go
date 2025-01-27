@@ -4,7 +4,7 @@ Contains multiple microservices.
 
 - Web App gateway
 - Message broker
-- Bill service calling by gRPC
+- Service calling by gRPC
 - Postgres DB
 
 ## Preparing

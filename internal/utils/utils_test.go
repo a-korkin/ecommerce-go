@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -122,5 +124,25 @@ func TestGetVars(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+type User struct {
+	ID        string `json:"id"`
+	LastName  string `json:"last_name"`
+	FirstName string `json:"first_name"`
+}
+
+func TestUnmarshallingFromFile(t *testing.T) {
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Errorf("Failed to get working dir: %s", err)
+	}
+	filePath := filepath.Join(dir, "../../test", "users.json")
+	data := make([]*User, 3)
+	UnmarshallingFromFile(filePath, &data)
+	if data[0] == nil {
+		t.Errorf(
+			"Wrong result unsmarshalling, expected: not nil, got: %v", data[0])
 	}
 }

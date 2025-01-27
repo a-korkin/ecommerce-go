@@ -2,6 +2,9 @@ package services
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/gofrs/uuid"
 
@@ -14,8 +17,13 @@ type CategoryMockService struct {
 }
 
 func NewCategoryMockService() *CategoryMockService {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Failed to get working dir: %s", err)
+	}
+	filePath := filepath.Join(currentDir, "../../../test", "categories.json")
 	data := make([]*models.Category, 4)
-	utils.UnmarshallingFromFile("categories.json", &data)
+	utils.UnmarshallingFromFile(filePath, &data)
 	return &CategoryMockService{Data: data}
 }
 

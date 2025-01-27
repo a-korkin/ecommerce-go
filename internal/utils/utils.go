@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -55,12 +54,7 @@ func GetVars(url string, path string) map[string]string {
 	return zip(patternPath, tokens)
 }
 
-func UnmarshallingFromFile(fileName string, data interface{}) {
-	currentDir, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Failed to get working dir: %s", err)
-	}
-	filePath := filepath.Join(currentDir, "../../../test", fileName)
+func UnmarshallingFromFile(filePath string, data interface{}) {
 	file, err := os.Open(filePath)
 	defer func() {
 		if err = file.Close(); err != nil {

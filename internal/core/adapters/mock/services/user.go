@@ -2,6 +2,9 @@ package services
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/a-korkin/ecommerce/internal/core/models"
 	"github.com/a-korkin/ecommerce/internal/utils"
@@ -13,8 +16,13 @@ type UsersMockService struct {
 }
 
 func NewUsersMockService() *UsersMockService {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("Failed to get working dir: %s", err)
+	}
+	filePath := filepath.Join(currentDir, "../../../test", "users.json")
 	data := make([]*models.User, 3)
-	utils.UnmarshallingFromFile("users.json", &data)
+	utils.UnmarshallingFromFile(filePath, &data)
 	return &UsersMockService{Data: data}
 }
 
