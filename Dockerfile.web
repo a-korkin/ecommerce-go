@@ -18,4 +18,4 @@ RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -
 
 COPY --from=builder /app/server /app/server
 
-CMD ["/app/server"]
+CMD ["/app/server -w"]

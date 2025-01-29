@@ -12,10 +12,10 @@ services:
     container_name: kafka
     ports:
       - "9092:9092"
-  # web:
-  #   container_name: ecommerce_web
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "8080:8080"
+  web:
+    container_name: ecommerce_web
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "8080:8080"

@@ -1,0 +1,6 @@
+img/
+migrations/
+scripts/
+test/
+Makefile
+README.md
