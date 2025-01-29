@@ -15,8 +15,18 @@ services:
   kafka:
     image: apache/kafka:latest
     container_name: kafka
+    # environment:
+    #   KAFKA_BROKER_ID: 1
+    #   KAFKA_ZOOKEEPER_CONNECT: "zookeper:2181"
+    #   KAFKA_LISTENERS: PLAINTEXT://kafka:9092
+    #   KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
     ports:
       - "9092:9092"
+    # healthcheck:
+    #   test: ["CMD-SHELL", "kafka-topics", "--bootstrap-server", "kafka:9092", "--list"]
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 5
   web:
     container_name: ecommerce_web
     build:
@@ -26,9 +36,9 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      GOOSE_DRIVER: ${GOOSE_DRIVER}
       DB_NAME: ${DB_NAME}
       PGPASSWORD: ${PGPASSWORD}
+      GOOSE_DRIVER: ${GOOSE_DRIVER}
       GOOSE_DBSTRING: > 
         host=postgres port=5432 user=postgres 
         password=${PGPASSWORD} dbname=${DB_NAME} sslmode=disable
@@ -38,3 +48,23 @@ services:
       GRPC_PORT: ${GRPC_PORT}
     ports:
       - "8080:8080"
+  consumer:
+    container_name: ecommerce_consumer
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    depends_on:
+      postgres: 
+        condition: service_healthy
+      # kafka:
+      #   condition: service_healthy
+    environment:
+      DB_NAME: ${DB_NAME}
+      PGPASSWORD: ${PGPASSWORD}
+      GOOSE_DRIVER: ${GOOSE_DRIVER}
+      GOOSE_DBSTRING: > 
+        host=postgres port=5432 user=postgres 
+        password=${PGPASSWORD} dbname=${DB_NAME} sslmode=disable
+      KAFKA_HOST: "kafka:9092"
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      GRPC_PORT: ${GRPC_PORT}
