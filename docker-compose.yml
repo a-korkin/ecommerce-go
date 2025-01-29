@@ -17,5 +17,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
+    environment:
+      GOOSE_DRIVER: ${GOOSE_DRIVER}
+      DB_NAME: ${DB_NAME}
+      PGPASSWORD: ${PGPASSWORD}
+      GOOSE_DBSTRING: > 
+        host=postgres port=5432 user=postgres 
+        password=${PGPASSWORD} dbname=${DB_NAME} sslmode=disable
+      GOOSE_MIGRATION_DIR: ${GOOSE_MIGRATION_DIR}
+      KAFKA_HOST: "kafka:9092"
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      GRPC_PORT: ${GRPC_PORT}
     ports:
       - "8080:8080"
