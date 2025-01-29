@@ -11,23 +11,23 @@ Contains multiple microservices.
 
 ## Preparing
 ```console
-docker compose up -d
-make prepare
+$ docker compose up -d
+$ make prepare
 # seed mock data if needed
-make seed_data
+$ make seed_data
 ```
 ## Starting
 ```console
 # start web interface
-make run_web
+$ make run_web
 # start kafka consumer
-make run_consumer
+$ make run_consumer
 # start grpc server
-make run_grpc
+$ make run_grpc
 ```
 ## Testing
 ```console
-make test
+$ make test
 ```
 ## Examples of requests
 ```http
