@@ -1,19 +1,21 @@
-FROM golang AS builder
+FROM golang:1.23-bookworm AS builder
 
 WORKDIR /app
 
-COPY go.* .
+COPY go.* ./
 
 RUN go mod download
 
-COPY . .
+COPY . ./
 
-RUN go build -v -o server cmd/main.go
+RUN go build -o server cmd/main.go
 
-FROM alpine
+FROM debian:bookworm-slim
 
-WORKDIR /app
+RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/server /app/server
 
-CMD ["/app/server -w"]
+CMD ["/app/server"]

@@ -1,0 +1,105 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"log"
+	"net/http"
+	"os/signal"
+	"syscall"
+
+	"github.com/a-korkin/ecommerce/configs"
+	"github.com/a-korkin/ecommerce/internal/core/adapters/db"
+	"github.com/a-korkin/ecommerce/internal/core/adapters/db/services"
+	"github.com/a-korkin/ecommerce/internal/web/handlers"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+)
+
+type AppState struct {
+	DBConnection  *db.PostgresConnection
+	KafkaProducer *kafka.Producer
+	Server        http.Server
+	KafkaService  *services.OrderService
+	Ctx           context.Context
+}
+
+func NewAppState() *AppState {
+	return &AppState{}
+}
+
+var appState *AppState
+
+func runWebApp() {
+	var stop context.CancelFunc
+	appState.Ctx, stop = signal.NotifyContext(
+		context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	connectToDB()
+	connectToKafka()
+	createWebServer()
+	defer shutDownWebApp()
+
+	<-appState.Ctx.Done()
+	log.Println("server terminated")
+}
+
+func createWebServer() {
+	appState.Server = http.Server{
+		Addr: ":8080",
+	}
+	router := handlers.NewRouter(
+		appState.DBConnection.DB,
+		appState.KafkaProducer,
+		configs.GetEnv("GRPC_PORT"))
+	http.Handle("/", router)
+
+	go func() {
+		log.Println("server running")
+		err := appState.Server.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("failed to start server: %v", err)
+		}
+	}()
+}
+
+func connectToDB() {
+	var err error
+	appState.DBConnection, err = db.NewDBConnection(
+		configs.GetEnv("GOOSE_DRIVER"), configs.GetEnv("GOOSE_DBSTRING"))
+	if err != nil {
+		log.Fatalf("failed to connect to db: %v", err)
+	}
+}
+
+func connectToKafka() {
+	var err error
+	appState.KafkaProducer, err = kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": configs.GetEnv("KAFKA_HOST"),
+	})
+	if err != nil {
+		log.Fatalf("failed to create kafka producer: %s", err)
+	}
+	log.Printf("producer started")
+}
+
+func shutDownWebApp() {
+	log.Println("db connection closed")
+	if err := appState.DBConnection.CloseDBConnection(); err != nil {
+		log.Fatalf("failed to close db connection: %v", err)
+	}
+
+	log.Printf("producer closed")
+	appState.KafkaProducer.Close()
+
+	if err := appState.Server.Shutdown(appState.Ctx); err != nil {
+		log.Fatalf("failed to shutdown server: %v", err)
+	}
+	log.Println("shutting down")
+}
+
+func main() {
+	log.Printf("hello from another main")
+	appState = NewAppState()
+	runWebApp()
+}
