@@ -31,27 +31,27 @@ services:
     #   interval: 10s
     #   timeout: 10s
     #   retries: 5
-  web:
-    container_name: ecommerce_web
-    build:
-      context: .
-      dockerfile: Dockerfile.web
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      DB_NAME: ${DB_NAME}
-      PGPASSWORD: ${PGPASSWORD}
-      GOOSE_DRIVER: ${GOOSE_DRIVER}
-      GOOSE_DBSTRING: > 
-        host=postgres port=5432 user=postgres 
-        password=${PGPASSWORD} dbname=${DB_NAME} sslmode=disable
-      GOOSE_MIGRATION_DIR: ${GOOSE_MIGRATION_DIR}
-      KAFKA_HOST: "kafka:9092"
-      KAFKA_TOPIC: ${KAFKA_TOPIC}
-      GRPC_PORT: ${GRPC_PORT}
-    ports:
-      - "8080:8080"
+  # web:
+  #   container_name: ecommerce_web
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.web
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   environment:
+  #     DB_NAME: ${DB_NAME}
+  #     PGPASSWORD: ${PGPASSWORD}
+  #     GOOSE_DRIVER: ${GOOSE_DRIVER}
+  #     GOOSE_DBSTRING: > 
+  #       host=postgres port=5432 user=postgres 
+  #       password=${PGPASSWORD} dbname=${DB_NAME} sslmode=disable
+  #     GOOSE_MIGRATION_DIR: ${GOOSE_MIGRATION_DIR}
+  #     KAFKA_HOST: "kafka:9092"
+  #     KAFKA_TOPIC: ${KAFKA_TOPIC}
+  #     GRPC_PORT: ${GRPC_PORT}
+  #   ports:
+  #     - "8080:8080"
   # consumer:
   #   container_name: ecommerce_consumer
   #   build:
