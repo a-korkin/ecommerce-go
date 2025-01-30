@@ -12,10 +12,11 @@ import (
 
 type OrderHandler struct {
 	KafkaProducer *kafka.Producer
+	Topic         string
 }
 
-func NewOrderHandler(kafkaProducer *kafka.Producer) *OrderHandler {
-	return &OrderHandler{KafkaProducer: kafkaProducer}
+func NewOrderHandler(kafkaProducer *kafka.Producer, topic string) *OrderHandler {
+	return &OrderHandler{KafkaProducer: kafkaProducer, Topic: topic}
 }
 
 func (o *OrderHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -49,9 +50,8 @@ func (o *OrderHandler) create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	topic := "orders-v1-topic"
 	err = o.KafkaProducer.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		TopicPartition: kafka.TopicPartition{Topic: &o.Topic, Partition: kafka.PartitionAny},
 		Value:          value,
 	}, nil)
 	if err != nil {

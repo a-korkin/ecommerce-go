@@ -17,9 +17,13 @@ services:
     container_name: kafka
     # environment:
     #   KAFKA_BROKER_ID: 1
-    #   KAFKA_ZOOKEEPER_CONNECT: "zookeper:2181"
-    #   KAFKA_LISTENERS: PLAINTEXT://kafka:9092
-    #   KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+    #   KAFKA_CREATE_TOPICS: ${KAFKA_TOPIC}
+    #   KAFKA_PROCESS_ROLES: broker,controller
+    #   KAFKA_LISTENERS: 'PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093'
+    #   KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092'
+    #   KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    #   KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+    #   KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
     ports:
       - "9092:9092"
     # healthcheck:
@@ -48,23 +52,23 @@ services:
       GRPC_PORT: ${GRPC_PORT}
     ports:
       - "8080:8080"
-  consumer:
-    container_name: ecommerce_consumer
-    build:
-      context: .
-      dockerfile: Dockerfile.consumer
-    depends_on:
-      postgres: 
-        condition: service_healthy
-      # kafka:
-      #   condition: service_healthy
-    environment:
-      DB_NAME: ${DB_NAME}
-      PGPASSWORD: ${PGPASSWORD}
-      GOOSE_DRIVER: ${GOOSE_DRIVER}
-      GOOSE_DBSTRING: > 
-        host=postgres port=5432 user=postgres 
-        password=${PGPASSWORD} dbname=${DB_NAME} sslmode=disable
-      KAFKA_HOST: "kafka:9092"
-      KAFKA_TOPIC: ${KAFKA_TOPIC}
-      GRPC_PORT: ${GRPC_PORT}
+  # consumer:
+  #   container_name: ecommerce_consumer
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.consumer
+  #   depends_on:
+  #     postgres: 
+  #       condition: service_healthy
+  #     # kafka:
+  #     #   condition: service_healthy
+  #   environment:
+  #     DB_NAME: ${DB_NAME}
+  #     PGPASSWORD: ${PGPASSWORD}
+  #     GOOSE_DRIVER: ${GOOSE_DRIVER}
+  #     GOOSE_DBSTRING: > 
+  #       host=postgres port=5432 user=postgres 
+  #       password=${PGPASSWORD} dbname=${DB_NAME} sslmode=disable
+  #     KAFKA_HOST: "kafka:9092"
+  #     KAFKA_TOPIC: ${KAFKA_TOPIC}
+  #     GRPC_PORT: ${GRPC_PORT}

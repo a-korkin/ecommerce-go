@@ -60,7 +60,8 @@ func createWebServer() {
 	router := handlers.NewRouter(
 		appState.DBConnection.DB,
 		appState.KafkaProducer,
-		configs.GetEnv("GRPC_PORT"))
+		configs.GetEnv("GRPC_PORT"),
+		configs.GetEnv("KAFKA_TOPIC"))
 	http.Handle("/", router)
 
 	go func() {

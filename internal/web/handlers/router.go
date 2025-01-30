@@ -22,7 +22,7 @@ type Router struct {
 }
 
 func NewRouter(
-	db *sqlx.DB, kafkaProducer *kafka.Producer, grpcHost string) *Router {
+	db *sqlx.DB, kafkaProducer *kafka.Producer, grpcHost string, topic string) *Router {
 	products := services.NewProductService(db)
 	categories := services.NewCategoryService(db)
 	users := services.NewUserService(db)
@@ -35,7 +35,7 @@ func NewRouter(
 		Products:      NewProductHandler(products),
 		Categories:    NewCategoryHandler(categories),
 		Users:         NewUserHandler(users),
-		Orders:        NewOrderHandler(kafkaProducer),
+		Orders:        NewOrderHandler(kafkaProducer, topic),
 		Bills:         NewBillHandler(&client),
 	}
 }
